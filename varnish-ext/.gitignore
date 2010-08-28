@@ -1,2 +1,3 @@
 main
-main.dSYM
+.lock-wscript
+varnish.dSYM

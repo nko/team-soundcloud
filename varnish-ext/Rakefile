@@ -1,10 +1,12 @@
 require 'rake/clean'
-CLEAN.include('main')
+CLEAN.include('varnish', 'varnish.dSYM', 'build')
 
 task :default => :compile
 task :compile do
-   sh "gcc main.c -g -I/usr/local/include/varnish -lvarnish -lvarnishapi -Wall -L/usr/local/lib -o main"
+   sh "gcc varnish.c -g -I/usr/local/include/varnish -lvarnish -lvarnishapi -Wall -L/usr/local/lib -o varnish"
 end
+
+
 
 
 desc "starts varnish"

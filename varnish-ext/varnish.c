@@ -60,7 +60,7 @@ int
 handler(void *priv, enum shmlogtag tag, unsigned fd, unsigned len,
     unsigned spec, const char *ptr)
 {
-  FILE *fo = priv;
+  FILE *fo = (FILE *) priv;
   int type;
 
   assert(fo != NULL);
