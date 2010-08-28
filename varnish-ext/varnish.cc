@@ -14,84 +14,6 @@ extern "C" {
 using namespace node;
 using namespace v8;
 
-static void
-dump(const unsigned char *p)
-{
-  const unsigned char *q;
-  q = p + SHMLOG_DATA;
-  fprintf(stderr, "%s\n", q);
-}
-
-int
-handler(void *priv, enum shmlogtag tag, unsigned fd, unsigned len,
-    unsigned spec, const char *ptr)
-{
-  FILE *fo = (FILE *) priv;
-  int type;
-
-  assert(fo != NULL);
-
-  type = (spec & VSL_S_CLIENT) ? 'c' :
-      (spec & VSL_S_BACKEND) ? 'b' : '-';
-
-  fprintf(fo, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
-  return (0);
-}
-
-static void
-do_once(struct VSL_data *vd)
-{
-  unsigned char *p;
-  while (VSL_NextLog(vd, &p) > 0)
-    dump(p);
-}
-
-static void
-log_loop(struct VSL_data *vd)
-{
-  while (VSL_Dispatch(vd, handler, stdout) >= 0) {
-    if (fflush(stdout) != 0) {
-      perror("stdout");
-      break;
-    }
-  }
-}
-
-int
-main(int argc, char **argv)
-{
-  struct VSL_data *vd;
-  const char *n_arg = NULL;
-  int o = 0;
-
-  vd = VSL_New();
-
-  while ((o = getopt(argc, argv, VSL_ARGS "1fn:V")) != -1) {
-    switch (o) {
-    case 'n':
-      n_arg = optarg;
-      break;
-    default:
-      if (VSL_Arg(vd, o, optarg) > 0)
-        break;
-    }
-  }
-
-  if (VSL_OpenLog(vd, n_arg))
-    return (1);
-
-  VSL_NonBlocking(vd, 1);
-
-  for (;;) {
-    log_loop(vd);
-    //fprintf(stderr, "sleeping\n");
-    sleep(1);
-  }
-  //do_once(vd);
-
-  return(0);
-}
-
 class Varnish: ObjectWrap
 {
   public:
@@ -110,6 +32,7 @@ class Varnish: ObjectWrap
     s_ct->SetClassName(String::NewSymbol("Varnish"));
 
     NODE_SET_PROTOTYPE_METHOD(s_ct, "stats", Stats);
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "loop", Loop);
 
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
   }
@@ -145,6 +68,16 @@ class Varnish: ObjectWrap
     return scope.Close(obj);
   }
 
+  static Handle<Value> Loop(const Arguments& args)
+  {
+    HandleScope scope;
+    Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
+
+    v->log_loop();
+
+    return v8::Undefined();
+  }
+
   Varnish(const char *n_arg)
   {
     vd = VSL_New();
@@ -163,10 +96,36 @@ class Varnish: ObjectWrap
   ~Varnish()
   {
   }
+
+  static int
+  handler(void *priv, enum shmlogtag tag, unsigned fd, unsigned len,
+      unsigned spec, const char *ptr)
+  {
+    FILE *fo = (FILE *) priv;
+    int type;
+
+    assert(fo != NULL);
+
+    type = (spec & VSL_S_CLIENT) ? 'c' :
+        (spec & VSL_S_BACKEND) ? 'b' : '-';
+
+    fprintf(fo, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
+    return (0);
+  }
+
+  void
+  log_loop(void)
+  {
+    while (VSL_Dispatch(vd, handler, stdout) >= 0) {
+      if (fflush(stdout) != 0) {
+        perror("stdout");
+        break;
+      }
+    }
+  }
 };
 
 Persistent<FunctionTemplate> Varnish::s_ct;
-
 extern "C" {
   static void init (Handle<Object> target)
   {

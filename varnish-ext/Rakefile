@@ -16,7 +16,9 @@ task :test => :build do
     f << %Q[
     var v = require('./build/default/varnish');
     var i = new v.Varnish('/tmp');
-    console.log(i.stats());
+    setInterval(function() {
+      i.loop();
+    }, 1000);
     ]
   end
   sh "node test.js"
