@@ -1,15 +1,11 @@
-var http     = require('http')
-  , paperboy = require('paperboy')
-  , config   = require('./config')
-  , webroot  = config.webroot
-  , frontend = new http.Server()
+var http        = require('http')
+  , config      = require('./config')
+  , webroot     = config.webroot
+  , frontend    = new http.Server()
+  , fileServer  = new(require('node-static').Server)('./public')
 
 frontend.addListener('request', function (req, res) {
-  paperboy
-    .deliver(webroot, req, res)
-    .otherwise(function(err) {
-      var statCode = 404;
-      res.writeHead(statCode, {'Content-Type': 'text/plain'});
-      log(statCode, req.url, ip, err);
-    })
-}).listen(config.frontend.port);
+  req.addListener('end', function() {
+    fileServer.serve(req, res)
+  })
+}).listen(config.frontend.port)
