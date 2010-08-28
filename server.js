@@ -36,11 +36,16 @@ setInterval(function () {
 
 // generate varnish traffic
 twitter.on('message', function (msg) {
-/*
-  var varnish = http.createClient(config.varnish.port, config.varnish.host)
-    , request = varnish.request('GET', '/' + msg, { host : config.varnish.host });
-  request.end();
-*/
+  socket.broadcast(
+    JSON.stringify({ key:  'request'
+                   , value: { url: msg
+                            , status: 200
+                            , ip: '127.0.0.1'
+                            , city: 'Berlin'
+                            , duration: 100
+                            }
+                   })
+  );
 });
 
 twitter.read();
