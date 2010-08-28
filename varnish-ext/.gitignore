@@ -1,3 +1,4 @@
-main
+build
 .lock-wscript
 varnish.dSYM
+test.js

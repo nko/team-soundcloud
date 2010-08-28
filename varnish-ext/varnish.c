@@ -42,11 +42,11 @@
 
 #include <varnishapi.h>
 
-#if 0
-#define AC(x) assert((x) != ERR)
-#else
-#define AC(x) x
-#endif
+#include <v8.h>
+#include <node.h>
+
+using namespace node;
+using namespace v8;
 
 static void
 dump(const unsigned char *p)
@@ -125,3 +125,46 @@ main(int argc, char **argv)
 
   exit(0);
 }
+
+class Varnish: ObjectWrap
+{
+  static Persistent<FunctionTemplate> s_ct;
+  static void Init(Handle<Object> target)
+  {
+    HandleScope scope;
+
+    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+
+    s_ct = Persistent<FunctionTemplate>::New(t);
+    s_ct->InstanceTemplate()->SetInternalFieldCount(1);
+    s_ct->SetClassName(String::NewSymbol("Varnish"));
+
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "hello", Hello);
+
+    target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
+  }
+
+  static Handle<Value> New(const Arguments& args)
+  {
+    HandleScope scope;
+    Varnish* v = new Varnish();
+    v->Wrap(args.This());
+    return args.This();
+  }
+
+  static Handle<Value> Hello(const Arguments& args)
+  {
+    HandleScope scope;
+    //Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
+    Local<String> result = String::New("Hello World");
+    return scope.Close(result);
+  }
+
+  Varnish() 
+  {
+  }
+
+  ~Varnish()
+  {
+  }
+};
