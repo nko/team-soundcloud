@@ -3,8 +3,7 @@ var http           = require('http')
   , io             = require('socket.io')
   , frontend       = new http.Server()
   , frontendStatic = new(require('node-static').Server)('./public')
-  , backend        = new http.Server()
-  , socket         = io.listen(backend)
+  , socket         = io.listen(frontend)
 
 frontend.addListener('request', function (req, res) {
   req.addListener('end', function () {
@@ -12,16 +11,11 @@ frontend.addListener('request', function (req, res) {
   });
 });
 
-frontend.listen(config.frontend.port);
-
-backend.addListener('request', function (req, res) {
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.write('<h1>Hello world</h1>');
-  res.end();
-});
-
-backend.listen(config.backend.port);
-
 socket.on('connection', function (client) {
   client.broadcast({ announcement: client.sessionId + ' connected' });
 });
+
+frontend.listen(config.frontend.port);
+
+// generate events and broadcast to all clients
+setInterval(function () { socket.broadcast(new Date()); }, 1000);

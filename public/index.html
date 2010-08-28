@@ -5,12 +5,26 @@
 <meta charset="utf-8">
 <title>nko</title>
 <link rel="stylesheet" href="style.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="socket_io.js"></script>
 </head>
 
 <body>
+<div id="messages"></div>
 
-
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script src="client.js"></script>
+<script>
+  // untested
+  if( window.location.toString().match(/localhost/) ) {
+    socket = new io.Socket('localhost');
+  }
+  else {
+    socket = new io.Socket('team-soundcloud.no.de', {port: 80});
+  }
+  socket.connect();
+  socket.on('message', function(data) {
+    $('#messages').html(data);
+  });
+</script>
 </body>
+
 </html>
