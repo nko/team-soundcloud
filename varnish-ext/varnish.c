@@ -1,49 +1,15 @@
-/*-
- * Copyright (c) 2006 Verdens Gang AS
- * Copyright (c) 2006-2009 Linpro AS
- * All rights reserved.
- *
- * Author: Poul-Henning Kamp <phk@phk.freebsd.dk>
- * Author: Dag-Erling Smørgrav <des@des.no>
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * Log tailer for Varnish
- */
-
-#include <ctype.h>
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <limits.h>
-#include <assert.h>
-
-#include <varnishapi.h>
-
 #include <v8.h>
 #include <node.h>
+
+extern "C" {
+  #include <errno.h>
+  #include <stdio.h>
+  #include <string.h>
+  #include <unistd.h>
+  #include <assert.h>
+
+  #include <varnishapi.h>
+}
 
 using namespace node;
 using namespace v8;
@@ -80,7 +46,7 @@ do_once(struct VSL_data *vd)
     dump(p);
 }
 
-static void 
+static void
 log_loop(struct VSL_data *vd)
 {
   while (VSL_Dispatch(vd, handler, stdout) >= 0) {
@@ -129,6 +95,8 @@ main(int argc, char **argv)
 class Varnish: ObjectWrap
 {
   public:
+  struct VSL_data *vd;
+  struct varnish_stats *vsl_stats;
 
   static Persistent<FunctionTemplate> s_ct;
   static void Init(Handle<Object> target)
@@ -141,7 +109,7 @@ class Varnish: ObjectWrap
     s_ct->InstanceTemplate()->SetInternalFieldCount(1);
     s_ct->SetClassName(String::NewSymbol("Varnish"));
 
-    NODE_SET_PROTOTYPE_METHOD(s_ct, "hello", Hello);
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "stats", Stats);
 
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
   }
@@ -154,16 +122,26 @@ class Varnish: ObjectWrap
     return args.This();
   }
 
-  static Handle<Value> Hello(const Arguments& args)
+  static Handle<Value> Stats(const Arguments& args)
   {
     HandleScope scope;
-    //Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
-    Local<String> result = String::New("Hello World");
+    Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
+    Local<Integer> result = Integer::New(v->vsl_stats->cache_hit);
     return scope.Close(result);
   }
 
-  Varnish() 
+  Varnish()
   {
+    vd = VSL_New();
+    if (VSL_OpenLog(vd, NULL)) {
+      // TODO
+      throw "Error opening logs";
+    }
+
+    if ((vsl_stats = VSL_OpenStats(NULL)) == NULL) {
+      throw "Error opening stats";
+    }
+    VSL_NonBlocking(vd, 1);
   }
 
   ~Varnish()
