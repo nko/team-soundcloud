@@ -5,10 +5,13 @@ var http           = require('http')
   , frontendStatic = new(require('node-static').Server)('./public')
   , socket         = io.listen(frontend)
   , url            = require('url')
+  , Varnish        = require('./varnish-ext/build/default/varnish')
   , twitter        = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
                                                           );
+
+var varnish = new Varnish.Varnish();
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
@@ -25,13 +28,10 @@ frontend.listen(config.frontend.port);
 
 // generate events and broadcast to all clients
 setInterval(function () {
-  var d = new Date();
-  socket.broadcast(JSON.stringify({ key:  'date', value: d }));
-}, 1000);
+  var hits = varnish.stats().cache_hit;
+  console.log(hits);
 
-setInterval(function () {
-  var t = new Date().getMilliseconds();
-  socket.broadcast(JSON.stringify({ key: 'counter', value: t }));
+  socket.broadcast(JSON.stringify({ key: 'counter', value: hits }));
 }, 800);
 
 // generate varnish requests from bit.ly urls

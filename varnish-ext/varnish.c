@@ -117,7 +117,7 @@ class Varnish: ObjectWrap
   static Handle<Value> New(const Arguments& args)
   {
     HandleScope scope;
-    Varnish* v = new Varnish();
+    Varnish* v = new Varnish("/tmp");
     v->Wrap(args.This());
     return args.This();
   }
@@ -134,16 +134,16 @@ class Varnish: ObjectWrap
     return scope.Close(obj);
   }
 
-  Varnish()
+  Varnish(char *n_arg)
   {
     vd = VSL_New();
-    if (VSL_OpenLog(vd, NULL)) {
+    if (VSL_OpenLog(vd, n_arg)) {
       // TODO
       ThrowException(String::New("Error opening logs"));
       //throw "Error opening logs"
     }
 
-    if ((vsl_stats = VSL_OpenStats(NULL)) == NULL) {
+    if ((vsl_stats = VSL_OpenStats(n_arg)) == NULL) {
       ThrowException(String::New("Error opening stats"));
       //throw "Error opening stats";
     }
