@@ -6,10 +6,17 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
+  conf.env.CPPPATH_VARNISH = ['/usr/local/include/varnish']
+  conf.check(
+     lib = 'varnishapi',
+     libpath = ['/usr/local/lib', '/usr/lib'],
+     uselib_store = 'VARNISH'
+  )
+
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.cxxflags = ["-g", "-I/usr/local/include/varnish",
-    "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
+  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
   obj.target = "varnish"
   obj.source = "varnish.c"
+  obj.uselib = "VARNISH"

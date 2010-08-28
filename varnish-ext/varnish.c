@@ -128,6 +128,8 @@ main(int argc, char **argv)
 
 class Varnish: ObjectWrap
 {
+  public:
+
   static Persistent<FunctionTemplate> s_ct;
   static void Init(Handle<Object> target)
   {
@@ -168,3 +170,14 @@ class Varnish: ObjectWrap
   {
   }
 };
+
+Persistent<FunctionTemplate> Varnish::s_ct;
+
+extern "C" {
+  static void init (Handle<Object> target)
+  {
+    Varnish::Init(target);
+  }
+
+  NODE_MODULE(varnish, init);
+}

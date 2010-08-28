@@ -1,19 +1,7 @@
 require 'rake/clean'
-CLEAN.include('varnish', 'varnish.dSYM', 'build')
+CLEAN.include('varnish', 'varnish.dSYM', 'build', '.lock-wscript')
 
 task :default => :build
-task :compile do
-   sh %Q[
-   g++ varnish.c -g
-   -I/usr/local/include/node
-   -I/usr/local/include/varnish
-   -lvarnish
-   -lvarnishapi
-   -Wall
-   -L/usr/local/lib
-   -o varnish
-   ].gsub(/\n/, '')
-end
 
 task :configure do
   sh "node-waf configure" unless uptodate?('.lock-wscript', ['wscript'])
