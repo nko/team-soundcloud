@@ -18,4 +18,13 @@ socket.on('connection', function (client) {
 frontend.listen(config.frontend.port);
 
 // generate events and broadcast to all clients
-setInterval(function () { socket.broadcast(new Date()); }, 1000);
+
+setInterval(function () {
+  var d = new Date();
+  socket.broadcast(JSON.stringify({ key:  'date', value: d }));
+}, 1000);
+
+setInterval(function () {
+  var t = new Date().getMilliseconds();
+  socket.broadcast(JSON.stringify({ key: 'counter', value: t }));
+}, 223);
