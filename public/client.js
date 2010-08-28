@@ -55,12 +55,11 @@
       for (var i = 0; i < valueArray.length; i++) {
         var currentValue = valueArray[i];
         if (!isNaN(currentValue) && currentValue >= 0) {
-        chartData.push(simpleEncoding.charAt(Math.round((simpleEncoding.length-1) *
-          currentValue / maxValue)));
-        }
-          else {
+          chartData.push(simpleEncoding.charAt(Math.round((simpleEncoding.length-1) * currentValue / maxValue)));
+
+        } else {
           chartData.push('_');
-          }
+        }
       }
 
       return chartData.join('');
