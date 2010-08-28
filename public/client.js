@@ -4,7 +4,7 @@
 
   $.dashboardTime = function() {
     var now = new Date();
-    return now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+    return now.getHours() + ":" + now.getMinutes() + ":" + ("0" + now.getSeconds()).substr(-2);
   }
 
   $.fn.timeize = function(selector) {
