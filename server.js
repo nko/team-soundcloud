@@ -34,7 +34,17 @@ setInterval(function () {
   socket.broadcast(JSON.stringify({ key: 'counter', value: t }));
 }, 800);
 
-// generate varnish traffic
+// generate varnish requests from bit.ly urls
+twitter.on('message', function (msg) {
+  var varnish = http.createClient(config.varnish.port, config.varnish.host)
+    , request = varnish.request('GET', '/' + msg, { host: config.varnish.host })
+
+  varnish.on('error', function (err) {});
+  request.on('error', function (err) {});
+  request.end();
+});
+
+// broadcast a dummy event
 twitter.on('message', function (msg) {
   socket.broadcast(
     JSON.stringify({ key:  'request'
