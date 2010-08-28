@@ -4,17 +4,17 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
-  conf.env.CPPPATH_VARNISH = ['/usr/local/include/varnish']
+  conf.env.CPPPATH_VARNISH = ['/home/node/varnish-2.1.3/include/varnish', '/usr/local/include/varnish']
 
   conf.check(
      lib = 'varnishapi',
-     libpath = ['/usr/local/lib', '/usr/lib'],
+     libpath = ['/home/node/varnish-2.1.3/lib', '/usr/local/lib', '/usr/lib'],
      uselib_store = 'VARNISHAPI'
   )
 
   conf.check(
     lib = 'varnish',
-    libpath = ['/usr/local/lib', '/usr/lib'],
+    libpath = ['/home/node/varnish-2.1.3/lib', '/usr/local/lib', '/usr/lib'],
     uselib_store = 'VARNISH'
   )
 
@@ -22,5 +22,5 @@ def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
   obj.target = "varnish"
-  obj.source = "varnish.c"
+  obj.source = "varnish.cc"
   obj.uselib = "VARNISH VARNISHAPI"

@@ -78,18 +78,18 @@ main(int argc, char **argv)
   }
 
   if (VSL_OpenLog(vd, n_arg))
-    exit (1);
+    return (1);
 
   VSL_NonBlocking(vd, 1);
 
   for (;;) {
     log_loop(vd);
     //fprintf(stderr, "sleeping\n");
-    sleep(0.5);
+    sleep(1);
   }
   //do_once(vd);
 
-  exit(0);
+  return(0);
 }
 
 class Varnish: ObjectWrap
