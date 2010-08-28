@@ -1,1 +1,80 @@
-/* style goes here */
+/* reset */
+
+html, body, div, span, object, h1, h2, h3, h4, h5, h6, p, blockquote, pre,  dfn, em, img,  small, strong, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure,  footer, header, hgroup, menu, nav, section, summary {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-decoration: none;
+  font-style: normal;
+  font-weight: normal;
+}
+
+/* typography */
+
+body {
+  font-family: "Akzidenz Grotesk", "Akzidenz Grotesk BQ", "Helvetica Neue", "Helvetica";
+  font-size: 18px;
+}
+
+@font-face {
+  font-family: "Akzidenz Grotesk BQ";
+  src: url('light.otf');
+}
+
+@font-face {
+  font-family: "Akzidenz Grotesk BQ Bold";
+  font-weight: bold;
+  src: url('bold.otf');
+}
+
+h1, h1 em {
+  font-family: "Akzidenz Grotesk BQ Bold";
+  font-weight: bold;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 45px;
+}
+
+/* layout */
+
+.varnishtop {
+  margin: 40px;
+}
+
+#logo {
+  margin-bottom: 15px;
+}
+
+/* colors */
+
+.ambient { color: #cdcdcd;}
+
+/* head and statistics */
+
+h1 em {
+  color: #ff0084;
+}
+
+section h2 {
+  display: none;
+}
+
+dt, dl, dd {
+  display: inline;
+}
+
+header {
+  float: left;
+}
+
+section.dashboard {
+  font-family: "Akzidenz Grotesk BQ Bold";
+  font-weight: bold;
+
+  float: right;
+  font-size: 45px;
+}
+
+section.statistics {
+  clear: both;
+}

@@ -1,32 +1,40 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>varnishtop</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+  </head>
 
-<head>
-<meta charset="utf-8">
-<title>nko</title>
-<link rel="stylesheet" href="style.css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script src="Socket.IO/socket.io.js"></script>
-</head>
+  <body>
+    <div class="varnishtop">
+      <header>
+        <hgroup id="logo">
+          <h1>varnishtop <em>0.2.22</em></h1>
+        </hgroup>
+      </header>
 
-<body>
-<div id="messages"></div>
+      <section class="dashboard">
+        <h2>dashboard</h2>
+        <span class="ambient server">varnish01</span>
+        <span class="time"></span>
+      </section>
 
-<script>
-  io.setPath('/Socket.IO/');
+      <section class="statistics">
+        <h2>statistics</h2>
+        <dl>
+          <dt>Client connections accepted</dt>
+          <dd>156170361</dd>
+          <img class="inline" height="15" border="0" alt="Chart zeigen" src="http://chart.apis.google.com/chart?chs=60x20&amp;cht=ls&amp;chco=ff0084&amp;chm=B,ffd3ea,0,0,0&amp;chls=1,0,0&amp;chd=s:rqmmkmkkimfeeZXiqrlrsnmimrtxy331891vwxuqonsqrswxy0vy3wsrnaRAC">
+        </dl>
+      </section>
+      
+      <div id="messages"></div>
+      
+    <div>
 
-  if( window.location.toString().match(/localhost/) ) {
-    socket = new io.Socket('localhost');
-  }
-  else {
-    socket = new io.Socket('team-soundcloud.no.de', {port: 80});
-  }
-
-  socket.connect();
-  socket.on('message', function(data) {
-    $('#messages').html(data);
-  });
-</script>
-</body>
-
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+    <script src="Socket.IO/socket.io.js"></script>
+    <script src="client.js" type="text/javascript"></script>
+  </body>
 </html>
