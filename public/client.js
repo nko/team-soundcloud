@@ -80,11 +80,13 @@
       element.dataList = new Array();
 
       $("body").bind(element.attr('data-listen'), function(e, value) {
+        
+        // start sliding after n events
         element.dataList.push(value);
-        var img = $(chart(element.dataList));
-
-        img.bind("load", function() {
-          graph.html(img);
+        if(element.dataList.length > 30) { element.dataList = element.dataList.slice(1); }
+        
+        $(chart(element.dataList)).bind("load", function() {
+          graph.html(this);
         })
       });
     });
