@@ -11,7 +11,7 @@ var http           = require('http')
                                                           , config.twitter.auth
                                                           );
 
-var varnish = new Varnish.Varnish();
+var varnish = new Varnish.Varnish('/tmp');
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
