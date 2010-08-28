@@ -1,0 +1,7 @@
+require 'rake/clean'
+CLEAN.include('main')
+
+task :default => :compile
+task :compile do
+   sh "gcc main.c -I/usr/local/include/varnish -lvarnish -lvarnishapi -L/usr/local/lib -o main"
+end
