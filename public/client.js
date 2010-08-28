@@ -77,6 +77,8 @@
     this.each(function() {
       var element = $(this);
       var graph = element.find(".graph");
+      var current = element.find(".current");
+
       element.dataList = new Array();
 
       $("body").bind(element.attr('data-listen'), function(e, value) {
@@ -85,6 +87,7 @@
         element.dataList.push(value);
         if(element.dataList.length > 30) { element.dataList = element.dataList.slice(1); }
         
+        current.html(value);
         $(chart(element.dataList)).bind("load", function() {
           graph.html(this);
         })
