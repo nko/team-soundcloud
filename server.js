@@ -5,12 +5,10 @@ var http           = require('http')
   , frontendStatic = new(require('node-static').Server)('./public')
   , socket         = io.listen(frontend)
   , url            = require('url')
-/*
   , twitter        = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
                                                           );
-*/
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
@@ -34,16 +32,15 @@ setInterval(function () {
 setInterval(function () {
   var t = new Date().getMilliseconds();
   socket.broadcast(JSON.stringify({ key: 'counter', value: t }));
-}, 223);
+}, 1223);
 
-/*
 // generate varnish traffic
 twitter.on('message', function (msg) {
+/*
   var varnish = http.createClient(config.varnish.port, config.varnish.host)
     , request = varnish.request('GET', '/' + msg, { host : config.varnish.host });
-
   request.end();
+*/
 });
 
 twitter.read();
-*/
