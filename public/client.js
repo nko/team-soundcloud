@@ -28,7 +28,7 @@
 
   $.dashboardTime = function() {
     var now = new Date();
-    return now.getHours() + ":" + now.getMinutes() + ":" + ("0" + now.getSeconds()).substr(-2);
+    return now.getHours() + ":" + ("0" + now.getMinutes()).substr(-2) + ":" + ("0" + now.getSeconds()).substr(-2);
   }
 
   $.fn.timeize = function(selector) {
@@ -67,16 +67,25 @@
     }
 
     function chart(data) {
-      return $("<img class=\"spark\" src=\"http://chart.apis.google.com/chart?chs=60x20&amp;cht=ls&amp;chco=ff0084&amp;chm=B,ffd3ea,0,0,0&amp;chls=1,0,0&amp;chd=" + simpleEncode(data, 500) + "\"></img>");
+      var img = new Image();
+      img.src = "http://chart.apis.google.com/chart?chs=60x20&cht=ls&chco=ff0084&chm=B,ffd3ea,0,0,0&chls=1,0,0&chd=" + simpleEncode(data, 500);
+      img.className = "spark";
+
+      return img;
     }
 
     this.each(function() {
       var element = $(this);
+      var graph = element.find(".graph");
       element.dataList = new Array();
 
       $("body").bind(element.attr('data-listen'), function(e, value) {
         element.dataList.push(value);
-        element.find(".graph").html(chart(element.dataList));
+        var img = $(chart(element.dataList));
+
+        img.bind("load", function() {
+          graph.html(img);
+        })
       });
     });
 

@@ -27,7 +27,7 @@ body {
   src: url('bold.otf');
 }
 
-h1, h1 em {
+h1, h1 em, table th {
   font-family: "Akzidenz Grotesk BQ Bold";
   font-weight: bold;
   text-transform: uppercase;
@@ -77,4 +77,22 @@ section.dashboard {
 
 section.statistics {
   clear: both;
+}
+
+/* sparklines */
+
+.spark {
+  height: 16px;
+}
+
+/* data */
+
+table {
+  margin-top: 20px;
+}
+
+table th {
+  font-size: 18px;
+  text-align: left;
+  padding-right: 15px;
 }
