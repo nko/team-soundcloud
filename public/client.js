@@ -12,6 +12,38 @@
     var that = this;
 
     setInterval(function() { that.html($.dashboardTime()); }, 1000);
+    
+    return this;
+  };
+
+})(jQuery);
+
+// websocket plugin
+
+(function($) {
+
+  $.fn.websocks = function(selector) {
+    
+    this.each(function() {
+      var element = $(this);
+      
+      io.setPath('/Socket.IO/');
+
+      if( window.location.toString().match(/localhost/) ) {
+        socket = new io.Socket('localhost');
+        
+      } else {
+        socket = new io.Socket('team-soundcloud.no.de', {port: 80});
+        
+      }
+
+      socket.connect();
+      socket.on(element.attr('data-websock-filter'), function(data) {
+        element.html(data);
+      });
+    });
+    
+    return this;
   };
 
 })(jQuery);
@@ -21,27 +53,12 @@
 (function($) {
 
   $.fn.spark = function(selector) {
+    return this;
   };
 
 })(jQuery);
 
-
 // apply plugins
 
 $(".time").timeize();
-
-// sockets
-
-io.setPath('/Socket.IO/');
-
-if( window.location.toString().match(/localhost/) ) {
-  socket = new io.Socket('localhost');
-}
-else {
-  socket = new io.Socket('team-soundcloud.no.de', {port: 80});
-}
-
-socket.connect();
-socket.on('message', function(data) {
-  $('#messages').html(data);
-});
+$('.messages').websocks();
