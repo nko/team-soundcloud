@@ -12,5 +12,5 @@ exports.twitter = { host: 'stream.twitter.com'
 
 // host + url that can be used to generate traffic against varnish
 exports.varnish = { host: '127.0.0.1'
-                  , port: 8080
+                  , port: 9000
                   }

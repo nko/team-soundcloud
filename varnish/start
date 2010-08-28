@@ -1,0 +1,11 @@
+#!/bin/sh
+hostname=`hostname`
+varnishd=`which varnishd`
+
+if [ "$hostname" == "team-soundcloud" ] ; then
+  echo "starting varnish on 127.0.0.1:9000 (live)"
+  exec sudo $varnishd -a 127.0.0.1:9000 -s malloc -F -n /tmp -f varnish.live.conf
+else
+  echo "starting varnish on 0.0.0.0:9000 (dev)"
+  $varnishd -a 0.0.0.0:9000 -s malloc -F -n /tmp -f varnish.dev.conf
+fi
