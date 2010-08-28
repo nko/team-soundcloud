@@ -114,10 +114,21 @@ class Varnish: ObjectWrap
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
   }
 
+  static const char* ToCString(const v8::String::Utf8Value& value) {
+    return *value ? *value : "<string conversion failed>";
+  }
+
   static Handle<Value> New(const Arguments& args)
   {
     HandleScope scope;
-    Varnish* v = new Varnish("/tmp");
+    const char *name = NULL;
+
+    if (args.Length() == 1) {
+        String::Utf8Value *str = new String::Utf8Value(args[0]);
+        name = ToCString(*str);
+    }
+
+    Varnish* v = new Varnish(name);
     v->Wrap(args.This());
     return args.This();
   }
@@ -134,11 +145,10 @@ class Varnish: ObjectWrap
     return scope.Close(obj);
   }
 
-  Varnish(char *n_arg)
+  Varnish(const char *n_arg)
   {
     vd = VSL_New();
     if (VSL_OpenLog(vd, n_arg)) {
-      // TODO
       ThrowException(String::New("Error opening logs"));
       //throw "Error opening logs"
     }

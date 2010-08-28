@@ -15,7 +15,7 @@ task :test => :build do
   File.open('test.js', 'w') do |f|
     f << %Q[
     var v = require('./build/default/varnish');
-    var i = new v.Varnish();
+    var i = new v.Varnish('/tmp');
     console.log(i.stats());
     ]
   end
