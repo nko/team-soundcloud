@@ -6,20 +6,22 @@
 <title>nko</title>
 <link rel="stylesheet" href="style.css">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script src="socket_io.js"></script>
+<script src="Socket.IO/socket.io.js"></script>
 </head>
 
 <body>
 <div id="messages"></div>
 
 <script>
-  // untested
+  io.setPath('/Socket.IO/');
+
   if( window.location.toString().match(/localhost/) ) {
     socket = new io.Socket('localhost');
   }
   else {
     socket = new io.Socket('team-soundcloud.no.de', {port: 80});
   }
+
   socket.connect();
   socket.on('message', function(data) {
     $('#messages').html(data);
