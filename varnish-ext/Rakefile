@@ -3,5 +3,11 @@ CLEAN.include('main')
 
 task :default => :compile
 task :compile do
-   sh "gcc main.c -I/usr/local/include/varnish -lvarnish -lvarnishapi -L/usr/local/lib -o main"
+   sh "gcc main.c -g -I/usr/local/include/varnish -lvarnish -lvarnishapi -Wall -L/usr/local/lib -o main"
+end
+
+
+desc "starts varnish"
+task :start do
+  sh "varnishd -a 127.0.0.1:4000 -b 127.0.0.1:4002 -F -s malloc"
 end

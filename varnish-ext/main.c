@@ -31,16 +31,13 @@
  */
 
 #include <ctype.h>
-#include <curses.h>
 #include <errno.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-
 
 #include <varnishapi.h>
 
@@ -50,11 +47,10 @@
 #define AC(x) x
 #endif
 
-static int f_flag = 0;
-
 static void
-accumulate(uint32_t * const p)
+accumulate(const unsigned char *p)
 {
+  printf("%s\n", p);
 }
 
  static void
@@ -63,9 +59,9 @@ dump(void)
 }
  
 static void
-do_once(struct VSM_data *vd)
+do_once(struct VSL_data *vd)
 {
-  uint32_t *p;
+  unsigned char *p;
 
   while (VSL_NextLog(vd, &p) > 0)
     accumulate(p);
@@ -78,25 +74,15 @@ main(int argc, char **argv)
 {
   struct VSL_data *vd;
   const char *n_arg = NULL;
-  int o, once = 0;
+  int o = 0;
 
   vd = VSL_New();
 
   while ((o = getopt(argc, argv, VSL_ARGS "1fn:V")) != -1) {
     switch (o) {
-    case '1':
-      VSL_Arg(vd, 'd', NULL);
-      once = 1;
-      break;
     case 'n':
       n_arg = optarg;
       break;
-    case 'f':
-      f_flag = 1;
-      break;
-    case 'V':
-      varnish_version("varnishtop");
-      exit(0);
     default:
       if (VSL_Arg(vd, o, optarg) > 0)
         break;
