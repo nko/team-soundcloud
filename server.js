@@ -28,10 +28,14 @@ frontend.listen(config.frontend.port);
 
 // generate events and broadcast to all clients
 setInterval(function () {
-  var hits = varnish.stats().cache_hit;
-  console.log(hits);
+  var stats = varnish.stats();
 
-  socket.broadcast(JSON.stringify({ key: 'counter', value: hits }));
+  var fields = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess', 's_req',
+                's_pass', 's_fetch', 's_hdrbytes', 's_bodybytes', 'backend_req'];
+
+  for (var i=0; i<fields.length; i++) {
+    socket.broadcast(JSON.stringify({ key: fields[i], value: stats[fields[i]] }));
+  }
 }, 800);
 
 // generate varnish requests from bit.ly urls
