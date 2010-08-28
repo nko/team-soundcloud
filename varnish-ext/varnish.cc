@@ -73,6 +73,12 @@ class Varnish: ObjectWrap
     HandleScope scope;
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
 
+
+    if (args.Length() == 1 && args[0]->IsFunction()) {
+      //Function fun = args.at(0);
+      //Local<Function> fun = args[0];
+    }
+
     v->log_loop();
 
     return v8::Undefined();
