@@ -1,13 +1,11 @@
-HTTP_PORT = 8080
-
 var http     = require('http')
-  , path     = require('path')
-  , root     = path.dirname(__filename)
-  , paperboy = require(path.join(root, 'vendor', 'paperboy'))
-  , webroot  = path.join(root, 'public');
+  , paperboy = require('paperboy')
+  , config   = require('./config')
+  , webroot  = config.webroot
+  , frontend = new http.Server()
 
-var frontend = http.createServer(function (req, res) {
+frontend.addListener('request', function (req, res) {
+  console.log('request')
+  console.log(webroot)
   paperboy.deliver(webroot, req, res);
-});
-
-frontend.listen(HTTP_PORT);
+}).listen(config.frontend.port);
