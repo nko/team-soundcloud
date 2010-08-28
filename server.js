@@ -32,7 +32,7 @@ setInterval(function () {
 setInterval(function () {
   var t = new Date().getMilliseconds();
   socket.broadcast(JSON.stringify({ key: 'counter', value: t }));
-}, 1223);
+}, 800);
 
 // generate varnish traffic
 twitter.on('message', function (msg) {

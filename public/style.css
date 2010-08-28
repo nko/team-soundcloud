@@ -49,6 +49,12 @@ h1, h1 em, table th {
 
 .ambient { color: #cdcdcd; }
 
+/* links */
+
+a {
+  color: #1187ec;
+}
+
 /* head and statistics */
 
 h1 em {

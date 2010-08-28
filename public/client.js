@@ -98,9 +98,34 @@
 
 })(jQuery);
 
+// take request events from varnish
+
+(function($) {
+
+  $.fn.requestTable = function() {
+    var element = $(this);
+    var table = {};
+    var link = function(url) {
+      return "<a href=\"http://" + url + "\">" + url + "</a>"
+    }
+
+    var row = function(value) {
+      return "<tr><td>" + value.city + "</td><td>" + value.duration + "</td><td>" + value.status + "</td><td>" + link(value.url) + "</td></tr>";
+    }
+
+    $('body').bind("varnish-request", function(e, value) {
+      element.append(row(value));
+    });
+
+    return this;
+  }
+
+})(jQuery);
+
 // apply plugins
 
 $('.time').timeize();
 $('.spark').spark();
+$('table.request-table').requestTable();
 
 $.houston(); // start consuming server events
