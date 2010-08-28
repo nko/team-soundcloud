@@ -126,8 +126,12 @@ class Varnish: ObjectWrap
   {
     HandleScope scope;
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
-    Local<Integer> result = Integer::New(v->vsl_stats->cache_hit);
-    return scope.Close(result);
+    Local<Object> obj = Object::New();
+    #define MAC_STAT(n, t, l, f, e) obj->Set(String::New(#n), Integer::New(v->vsl_stats->n));
+    #include <stat_field.h>
+    #undef MAC_STAT
+
+    return scope.Close(obj);
   }
 
   Varnish()
@@ -135,11 +139,13 @@ class Varnish: ObjectWrap
     vd = VSL_New();
     if (VSL_OpenLog(vd, NULL)) {
       // TODO
-      throw "Error opening logs";
+      ThrowException(String::New("Error opening logs"));
+      //throw "Error opening logs"
     }
 
     if ((vsl_stats = VSL_OpenStats(NULL)) == NULL) {
-      throw "Error opening stats";
+      ThrowException(String::New("Error opening stats"));
+      //throw "Error opening stats";
     }
     VSL_NonBlocking(vd, 1);
   }
