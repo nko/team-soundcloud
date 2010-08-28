@@ -18,14 +18,15 @@
 
 })(jQuery);
 
-// websocket plugin
+// websocket plugin, collects data pushed to the client.
 
 (function($) {
 
-  $.fn.websocks = function(selector) {
+  $.fn.collectorize = function(selector) {
     
     this.each(function() {
       var element = $(this);
+      element.dataList = new Array();
       
       io.setPath('/Socket.IO/');
 
@@ -39,6 +40,7 @@
 
       socket.connect();
       socket.on(element.attr('data-websock-filter'), function(data) {
+        element.dataList.push(data);
         element.html(data);
       });
     });
@@ -53,6 +55,32 @@
 (function($) {
 
   $.fn.spark = function(selector) {
+    var simpleEncoding = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    function simpleEncode(valueArray, maxValue) {
+      var chartData = ['s:'];
+      for (var i = 0; i < valueArray.length; i++) {
+        var currentValue = valueArray[i];
+        if (!isNaN(currentValue) && currentValue >= 0) {
+        chartData.push(simpleEncoding.charAt(Math.round((simpleEncoding.length-1) *
+          currentValue / maxValue)));
+        }
+          else {
+          chartData.push('_');
+          }
+      }
+      return chartData.join('');
+    }
+
+    function chart(data) {
+      return $("<img class=\"spark\" src=\"http://chart.apis.google.com/chart?chs=60x20&amp;cht=ls&amp;chco=ff0084&amp;chm=B,ffd3ea,0,0,0&amp;chls=1,0,0&amp;chd=" + simpleEncode(data) + "\"");
+    }
+
+    this.each(function() {
+      var element = $(this);
+      chart(element.dataList);
+    });
+
     return this;
   };
 
@@ -60,5 +88,5 @@
 
 // apply plugins
 
-$(".time").timeize();
-$('.messages').websocks();
+$('.time').timeize();
+$('.listener').collectorize();
