@@ -1,7 +1,9 @@
+// doubly linked list
+
 function TopList(table) {
   this.head = null;
   this.table = table;
-  this.listLimit = 100;
+  this.listLimit = 10;
 }
 
 TopList.prototype = {
@@ -35,6 +37,7 @@ TopList.prototype = {
         hash: data.url,
         count: 1,
         next: null
+        previous: null
     };
 
     if (this.head === null) {
@@ -48,7 +51,18 @@ TopList.prototype = {
         if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
-          // move.
+          // // remove node from list position
+          // currentNode.previous.next = currentNode.next;
+          // currentNode.next.previous = currentNode.previous;
+          //
+          // // find new previous node
+          // var shufflePointer = 0
+          //
+          // while(currentNode.previous && currentNode.previous.count < currentNode.count) {
+          //   shufflePointer -= 1;
+          // }
+
+          // insert node at new position
 
           return;
         }
@@ -58,6 +72,7 @@ TopList.prototype = {
       }
 
       if(this.listLimit === index) { this.paint() }      
+      node.previous = currentNode;
       currentNode.next = node;
     }
   }
