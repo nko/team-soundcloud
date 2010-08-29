@@ -54,7 +54,12 @@ setInterval(function () {
                 's_pass', 's_fetch', 's_hdrbytes', 's_bodybytes', 'backend_req'];
 
   for (var i=0; i<fields.length; i++) {
-    socket.broadcast(JSON.stringify({ key: fields[i], value: stats[fields[i]] }));
+    socket.broadcast(
+      JSON.stringify({
+        key: fields[i],
+        value: { av: 200 + Math.ceil(Math.random() * 100), ag: stats[fields[i]] }
+      })
+    );
   }
 }, 800);
 

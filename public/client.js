@@ -76,17 +76,20 @@
     this.each(function() {
       var element = $(this);
       var graph = element.find(".graph");
-      var current = element.find(".current");
+      var average = element.find(".average");
+      var aggregate = element.find(".aggregate");
 
       element.dataList = new Array();
 
       $("body").bind(element.attr('data-listen'), function(e, value) {
         
         // start sliding after n events
-        element.dataList.push(value);
+        element.dataList.push(value.av);
         if(element.dataList.length > 30) { element.dataList = element.dataList.slice(1); }
         
-        current.html(value);
+        aggregate.html(value.ag);
+        average.html(value.av);
+
         $(chart(element.dataList)).bind("load", function() {
           graph.html(this);
         })
