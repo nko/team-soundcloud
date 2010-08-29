@@ -69,56 +69,37 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
   url = 'http:/' + url
 
-  redisClient.type(url, function(err, type) {
+  redisClient.exists(url, function(err, exist) {
     if(err) throw err
 
-    if(type === undefined) console.dir(arguments)
+    if(exist) {
+      redisClient.get(url, function(err, resolvedUrl) {
+        if(err) throw err
 
-    type = type.toString()
+        pack.value.url = resolvedUrl.toString()
+        pack.value.hash = urlHash(resolvedUrl.toString())
 
-    switch(type) {
-      case 'none':
-        redisClient.lpush(url, '0', function(err, elems) {
-          if(err) throw err
-        })
+        cast(pack)
+      })
+    } else {
+      bitly.expandMoar(url, function(ok, hdrs) {
+        if(!ok) return false
 
-        break;
-      case 'list':
-        bitly.expandMoar(url, function(ok, hdrs) {
-          if(!ok) return false
+        var resolvedUrl = hdrs['location']
 
-          var resolvedUrl = hdrs['location']
-
-          redisClient.set(url, resolvedUrl, function(err, code) {
-            if(err) throw err
-
-            pack.value.url = resolvedUrl
-            pack.value.hash = urlHash(resolvedUrl)
-
-            cast(pack)
-
-            redisClient.expire(url, (60 * 5), function(err, code) {
-              if(err) throw err
-            })
-          })
-        })
-
-        break;
-      case 'string':
-        redisClient.get(url, function(err, resolvedUrl) {
+        redisClient.set(url, resolvedUrl, function(err, code) {
           if(err) throw err
 
-          if(typeof(resolvedUrl) === undefined) console.dir(arguments)
-
-          pack.value.url = resolvedUrl.toString()
-          pack.value.hash = urlHash(resolvedUrl.toString())
+          pack.value.url = resolvedUrl
+          pack.value.hash = urlHash(resolvedUrl)
 
           cast(pack)
-        })
 
-        break;
-      default:
-        console.log('type is: ' + type)
+          redisClient.expire(url, (60 * 5), function(err, code) {
+            if(err) throw err
+          })
+        })
+      })
     }
   })
 });
