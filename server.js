@@ -7,13 +7,14 @@ var url         = require('url')
   , lastStats   = null
   , statFields  = config.varnish.statFields
   , redisClient = require('redis-client').createClient(config.redis.port, config.redis.host)
-  , varnish     = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
+  // , varnish     = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
+  , varnish     = new(require('./varnish-ext/bin/varnish').Varnish)('/tmp')
   , frontend    = new http.Server()
   , staticSrv   = new(require('node-static').Server)('./public')
   , socket      = io.listen(frontend)
   , bitly       = new(require('./lib/bitly').Bitly)()
   , twitter     = new(require('./lib/twitter').Twitter)(config.twitter.host, config.twitter.endpoint, config.twitter.auth)
-  , urlHash     = function(x) { return crypto.createHash('md5').update(x).digest('base64') }
+  , urlHash     = function(x) { return crypto.createHash('md5').update(x).digest('hex') }
 
 
 // handle static file requests + websocket clients
@@ -85,13 +86,13 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
         break;
       case 'list':
         bitly.expandMoar(url, function(hdrs) {
-          var url = hdrs['location']
+          var resolvedUrl = hdrs['location']
 
-          redisClient.set(url, url, function(err, code) {
+          redisClient.set(url, resolvedUrl, function(err, code) {
             if(err) throw err
 
-            pack.value.url = url
-            pack.value.hash = urlHash(url)
+            pack.value.url = resolvedUrl
+            pack.value.hash = urlHash(resolvedUrl)
 
             cast(pack)
 
@@ -103,13 +104,13 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
         break;
       case 'string':
-        redisClient.get(url, function(err, url) {
+        redisClient.get(url, function(err, resolvedUrl) {
           if(err) throw err
 
-          if(typeof(url) === undefined) console.dir(arguments)
+          if(typeof(resolvedUrl) === undefined) console.dir(arguments)
 
-          pack.value.url = url.toString()
-          pack.value.hash = urlHash(url.toString())
+          pack.value.url = resolvedUrl.toString()
+          pack.value.hash = urlHash(resolvedUrl.toString())
 
           cast(pack)
         })
