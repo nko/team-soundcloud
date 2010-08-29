@@ -1,8 +1,13 @@
 var path = require('path')
 
-exports.root    = path.dirname(__filename)
-
+exports.root = path.dirname(__filename)
 exports.frontend = { port: 8080 }
+
+// redis host, port, auth
+exports.redis = { host: 'foo.bar.baz'
+                , port: 6379
+                , password: '1234'
+                }
 
 // twitter api details + auth credentials
 exports.twitter = { host: 'stream.twitter.com'

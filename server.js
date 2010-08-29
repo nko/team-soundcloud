@@ -1,13 +1,14 @@
-var url            = require('url')
-  , http           = require('http')
-  , spawn          = require('child_process').spawn
-  , io             = require('socket.io')
-  , config         = require('./config')
-  , Varnish        = require('./varnish-ext/build/default/varnish').Varnish
-  , frontend       = new http.Server()
-  , frontendStatic = new(require('node-static').Server)('./public')
-  , socket         = io.listen(frontend)
-  , twitter        = new(require('./lib/twitter').Twitter)( config.twitter.host
+var url             = require('url')
+  , http            = require('http')
+  , spawn           = require('child_process').spawn
+  , io              = require('socket.io')
+  , config          = require('./config')
+  , redisClient     = require('redis-client').createClient(config.redis.port, config.redis.host)
+  , Varnish         = require('./varnish-ext/bin/varnish').Varnish
+  , frontend        = new http.Server()
+  , frontendStatic  = new(require('node-static').Server)('./public')
+  , socket          = io.listen(frontend)
+  , twitter         = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
                                                           );
@@ -15,7 +16,7 @@ var url            = require('url')
 // start a varnish instance
 var child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
-                                      , '-smalloc'
+                                      , '-s malloc'
                                       , '-n/tmp'
                                       , '-F'
                                       ]);
@@ -75,4 +76,8 @@ twitter.on('message', function (msg) {
   );
 });
 
-twitter.read();
+redisClient.auth(config.redis.password, function(err, authorized) {
+  if(err) throw err
+
+  twitter.read();
+})
