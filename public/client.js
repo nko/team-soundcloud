@@ -107,10 +107,13 @@
 
   $.fn.requestTable = function() {
     var element = $(this);
-    var list = new TopList(element);
+    //var list = new TopList(element);
+    var alist = new Alternalist(element);
+
+    setInterval(function() { alist.paint(); }, 1000);
 
     $('body').bind("varnish-request", function(e, value) {
-      list.add(value);
+      alist.add(value.url);
     });
 
     return this;
@@ -122,6 +125,6 @@
 
 $('.time').timeize();
 $('.spark').spark();
-$('table.request-table').requestTable();
+$('table.request-table tbody').requestTable();
 
 $.houston(); // start consuming server events
