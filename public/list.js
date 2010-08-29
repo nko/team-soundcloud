@@ -51,26 +51,33 @@ TopList.prototype = {
 
       while (currentNode.next) {
         if (currentNode.hash == node.hash) {
+          console.log(currentNode.hash + ' is ' + node.hash);
+        }
+
+        if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
           // remove node from list position
-          // currentNode.previous.next = currentNode.next;
-          // currentNode.next.previous = currentNode.previous;
+          if (currentNode.previous) {
+            currentNode.previous.next = currentNode.next;
+          }
 
-          // find new previous node
-          // var shufflePointer = 0
-          //
-          // while(currentNode.previous && currentNode.previous.count < currentNode.count) {
-          //   shufflePointer -= 1;
-          // }
+          if (currentNode.next) {
+            currentNode.next.previous = currentNode.previous;
+          }
+
+          // traverse back up
+          while ( (currentNode.previous != null) && (currentNode.previous.count < currentNode.count) ) {
+            currentNode = currentNode.previous;
+          }
 
           // insert node at new position
+          node.next = currentNode.next;
+          node.previous = currentNode;
+
+          this.repaint();
 
           return;
-
-        } else {
-          console.log(currentNode.hash);
-          console.log(node.hash);
         }
 
         index += 1;
