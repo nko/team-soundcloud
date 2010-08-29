@@ -1,4 +1,5 @@
 var http           = require('http')
+  , spawn          = require('child_process').spawn
   , config         = require('./config')
   , io             = require('socket.io')
   , frontend       = new http.Server()
@@ -10,6 +11,13 @@ var http           = require('http')
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
                                                           );
+// start a varnish instance
+var child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
+                                      , '-f' + config.varnish.config
+                                      , '-smalloc'
+                                      , '-n/tmp'
+                                      , '-F'
+                                      ]);
 
 var varnish = new Varnish.Varnish('/tmp');
 
