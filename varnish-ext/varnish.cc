@@ -33,12 +33,17 @@ class Varnish: ObjectWrap
 
     NODE_SET_PROTOTYPE_METHOD(s_ct, "stats", Stats);
     NODE_SET_PROTOTYPE_METHOD(s_ct, "log", Log);
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "config", Config);
 
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
   }
 
   static const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
+    if (*value) {
+      return *value;
+    } else {
+      throw "String conversion failed";
+    }
   }
 
   static Handle<Value> New(const Arguments& args)
@@ -75,6 +80,25 @@ class Varnish: ObjectWrap
     if (args.Length() == 1 && args[0]->IsFunction()) {
       Local<Function> callback = Local<Function>::Cast(args[0]);
       v->vsl_dispatch(&callback);
+    }
+
+    return v8::Undefined();
+  }
+
+  static Handle<Value> Config(const Arguments& args)
+  {
+    Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
+    if (args.Length() == 2) {
+        const char *arg, *opt;
+        String::Utf8Value a0(args[0]);
+        String::Utf8Value a1(args[1]);
+
+        arg = ToCString(a0);
+        opt = ToCString(a1);
+
+        v->vsl_arg(*arg, opt);
+    } else {
+      return ThrowException(String::New("Invalid args"));
     }
 
     return v8::Undefined();
@@ -121,6 +145,14 @@ class Varnish: ObjectWrap
   {
     while (VSL_Dispatch(vd, handler, callback) >= 0)
       ;
+  }
+
+  void
+  vsl_arg(char arg, const char *opt)
+  {
+    if (VSL_Arg(vd, arg, opt) != 1) {
+      ThrowException(String::New("Error setting args"));
+    }
   }
 };
 

@@ -16,6 +16,7 @@ task :test => :build do
     f << %Q[
     var varnish = require('./build/default/varnish');
     var v = new varnish.Varnish('/tmp');
+    v.config('i', 'RxURL');
     setInterval(function() {
       v.log(function(tag, fd, spec, s) {
         console.log([tag, fd, spec, s]);
