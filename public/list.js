@@ -1,31 +1,38 @@
 function TopList(table) {
   this.head = null;
   this.table = table;
+  this.listLimit = 100;
 }
 
 TopList.prototype = {
 
   paint: function() {
-    var node = this.head;
-    var link = function(url) {
+    var index = 0
+      , node = this.head;
+      
+      var link = function(url) {
       return "<a href=\"http://" + url + "\">http://" + url + "</a>"
     }
 
     var row = function(value) {
-      return "<tr><td>" + link(value.url) + "</td></tr>";
+      return "<tr><td>" + value.count + "</td><td>" + link(value.url) + "</td></tr>";
     }
 
-    while(node.next) {
+    while(node.next && index < this.listLimit) {
+      index += 1;
+      
       this.table.append(row(node));
-      node = node.next
+      node = node.next;
     }
   },
 
   add: function(data) {
-    var currentNode;
+    var index = 0
+      , currentNode;
+      
     var node = {
         url: data.url,
-        hash: data.hash,
+        hash: data.url,
         count: 1,
         next: null
     };
@@ -36,7 +43,8 @@ TopList.prototype = {
     } else {
       currentNode = this.head;
 
-      while (currentNode.next || currentNode == this.head) {
+      while (currentNode.next) {
+        
         if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
@@ -45,9 +53,11 @@ TopList.prototype = {
           return;
         }
 
+        index += 1;
         currentNode = currentNode.next;
       }
 
+      if(this.listLimit === index) { this.paint() }      
       currentNode.next = node;
     }
   }

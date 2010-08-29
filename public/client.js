@@ -108,7 +108,6 @@
 
     $('body').bind("varnish-request", function(e, value) {
       list.add(value);
-      list.paint();
     });
 
     return this;

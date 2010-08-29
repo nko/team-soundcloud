@@ -28,6 +28,7 @@ child.stderr.on('data', function (data) {
 process.on('exit', function() {
   child.kill()
 })
+
 process.on('uncaughtException', function() {
   child.kill()
 })
