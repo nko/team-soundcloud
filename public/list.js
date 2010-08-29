@@ -3,12 +3,14 @@
 function TopList(table) {
   this.head = null;
   this.table = table;
-  this.listLimit = 100;
+  this.listLimit = 10;
 }
 
 TopList.prototype = {
 
   repaint: function() {
+    console.log("repainting");
+
     var index = 0
       , node = this.head;
       
@@ -51,11 +53,11 @@ TopList.prototype = {
         if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
-          // // remove node from list position
+          // remove node from list position
           // currentNode.previous.next = currentNode.next;
           // currentNode.next.previous = currentNode.previous;
-          //
-          // // find new previous node
+
+          // find new previous node
           // var shufflePointer = 0
           //
           // while(currentNode.previous && currentNode.previous.count < currentNode.count) {
@@ -65,13 +67,17 @@ TopList.prototype = {
           // insert node at new position
 
           return;
+
+        } else {
+          console.log(currentNode.hash);
+          console.log(node.hash);
         }
 
         index += 1;
         currentNode = currentNode.next;
       }
 
-      if(this.listLimit < index) { this.repaint(); }
+      if(index < this.listLimit) { this.repaint(); }
 
       node.previous = currentNode;
       currentNode.next = node;

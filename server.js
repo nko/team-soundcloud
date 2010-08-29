@@ -117,7 +117,7 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
           redisClient.set(url, url, function(err, code) {
             pack.value.url = url
-
+            if(err) throw err
             cast(pack)
 
             redisClient.expire(url, (60 * 5), function(err, code) {
@@ -135,6 +135,7 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
           pack.value.url = url.toString()
 
+          if(err) throw err
           cast(pack)
         })
 
