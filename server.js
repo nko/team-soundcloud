@@ -8,6 +8,7 @@ var url             = require('url')
   , io              = require('socket.io')
   , config          = require('./config')
   , redisClient     = require('redis-client').createClient(config.redis.port, config.redis.host)
+  , lastStats       = null
   , varnish         = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
   , frontend        = new http.Server()
   , frontendStatic  = new(require('node-static').Server)('./public')
@@ -17,8 +18,6 @@ var url             = require('url')
                                                            , config.twitter.endpoint
                                                            , config.twitter.auth
                                                            )
-  , lastStats       = null
-
   // start a varnish instance
   , child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
@@ -38,7 +37,11 @@ process.on('exit', function() {
 process.on('uncaughtException', function(err) {
   child.kill()
 
-  console.log(err.stack)
+  if(typeof(err) === 'string')
+    console.log(err)
+  else
+    console.log(err.message), console.log(err.stack)
+
   process.exit()
 })
 
