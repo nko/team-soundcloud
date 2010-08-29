@@ -109,6 +109,8 @@ section.statistics {
 
 table {
   margin-top: 20px;
+  width: 100%;
+  table-layout: fixed;
 }
 
 table th {
@@ -121,6 +123,14 @@ table td {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+table thead tr th:first-child {
+  width: 100px;
+}
+
+table tbody tr td:first-child {
+  width: 100px;
 }
 
 /* about */

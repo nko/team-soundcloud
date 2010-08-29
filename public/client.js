@@ -108,11 +108,13 @@
   $.fn.requestTable = function() {
     var element = $(this);
     //var list = new TopList(element);
-    var alist = new Alternalist(element);
+    var alist = new Alternalist(element)
+      , dirty = false;
 
-    setInterval(function() { alist.paint(); }, 1000);
+    setInterval(function() { if(dirty) { alist.paint(); dirty = false } }, 1000);
 
     $('body').bind("varnish-request", function(e, value) {
+      dirty = true
       alist.add(value.url);
     });
 
