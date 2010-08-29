@@ -110,7 +110,7 @@
     var list = new TopList(element);
 
     $('body').bind("varnish-request", function(e, value) {
-      console.log(value.url)
+      console.log(value.url);
       list.add(value);
     });
 

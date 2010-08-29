@@ -93,14 +93,8 @@ section.statistics {
 
 /* data */
 
-.data {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -o-text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 table {
+  table-layout: fixed;
   margin-top: 20px;
 }
 
@@ -108,4 +102,10 @@ table th {
   font-size: 18px;
   text-align: left;
   padding-right: 15px;
+}
+
+table td {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
