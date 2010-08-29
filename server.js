@@ -1,3 +1,7 @@
+STAT_FIELDS = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess', 's_req',
+               's_pass', 's_fetch', 's_hdrbytes', 's_bodybytes', 'backend_req'
+              ];
+
 var url             = require('url')
   , http            = require('http')
   , spawn           = require('child_process').spawn
@@ -9,9 +13,11 @@ var url             = require('url')
   , frontendStatic  = new(require('node-static').Server)('./public')
   , socket          = io.listen(frontend)
   , twitter         = new(require('./lib/twitter').Twitter)( config.twitter.host
-                                                          , config.twitter.endpoint
-                                                          , config.twitter.auth
-                                                          )
+                                                           , config.twitter.endpoint
+                                                           , config.twitter.auth
+                                                           )
+  , lastStats       = null
+
   // start a varnish instance
   , child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
@@ -50,20 +56,20 @@ frontend.listen(config.frontend.port);
 
 // generate events and broadcast to all clients
 setInterval(function () {
-  var stats = varnish.stats();
+  var currentStats = varnish.stats()
 
-  var fields = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess', 's_req',
-                's_pass', 's_fetch', 's_hdrbytes', 's_bodybytes', 'backend_req'];
-
-  for (var i=0; i<fields.length; i++) {
+  for (var i=0; i<STAT_FIELDS.length; i++) {
     socket.broadcast(
-      JSON.stringify({
-        key: fields[i],
-        value: { av: 200 + Math.ceil(Math.random() * 100), ag: stats[fields[i]] }
-      })
-    );
+      JSON.stringify({ key: STAT_FIELDS[i]
+                     , value: { ag: currentStats[STAT_FIELDS[i]]
+                              , av: lastStats ? currentStats[STAT_FIELDS[i]] - lastStats[STAT_FIELDS[i]] : currentStats[STAT_FIELDS[i]]
+                              }
+                     })
+    )
   }
-}, 800);
+
+  lastStats = currentStats
+}, 1000);
 
 // generate varnish requests from bit.ly urls
 twitter.on('message', function (msg) {
