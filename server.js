@@ -85,8 +85,9 @@ twitter.on('message', function (msg) {
   request.end();
 });
 
-// broadcast a dummy event
-var requests = {};
+twitter.on('error', function(err) {
+  throw err
+})
 
 // generate varnish traffic
 varnish.on('RxURL', function (tag, fd, spec, url) {
@@ -145,10 +146,6 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
     }
   })
 });
-
-twitter.on('error', function(err) {
-  throw err
-})
 
 redisClient.auth(config.redis.password, function(err, authorized) {
   if(err) throw err
