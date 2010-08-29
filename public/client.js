@@ -36,7 +36,7 @@
     var that = this;
 
     setInterval(function() { that.html($.dashboardTime()); }, 1000);
-    
+
     return this;
   };
 
@@ -82,11 +82,11 @@
       element.dataList = new Array();
 
       $("body").bind(element.attr('data-listen'), function(e, value) {
-        
+
         // start sliding after n events
         element.dataList.push(value.av);
         if(element.dataList.length > 30) { element.dataList = element.dataList.slice(1); }
-        
+
         aggregate.html(value.ag);
         average.html(value.av);
 
