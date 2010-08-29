@@ -118,6 +118,14 @@
 
 })(jQuery);
 
+$(".open-about").click(function() {
+  $(".varnishtop").animate({ marginTop: 0 }, { duration: 80 });
+});
+
+$("body").keypress(function() {
+  $(".varnishtop").animate({ marginTop: -1170 }, { duration: 130 });
+})
+
 // apply plugins
 
 $('.time').timeize();
@@ -125,3 +133,4 @@ $('.spark').spark();
 $('table.request-table').requestTable();
 
 $.houston(); // start consuming server events
+

@@ -45,6 +45,16 @@ h1, h1 em, table th {
   margin-bottom: 15px;
 }
 
+/* about */
+
+.varnishtop {
+  margin-top : -1170px;
+}
+
+#about {
+  height: 1200px;
+}
+
 /* colors */
 
 .ambient { color: #cdcdcd; }
@@ -126,7 +136,6 @@ table td {
 }
 
 .splash {
-  margin-top: 300px;
   display: block;
   color: black;
   text-align: center;
