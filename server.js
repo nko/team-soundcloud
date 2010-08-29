@@ -128,7 +128,7 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
             if(err) throw err
 
             pack.value.url = url
-            pack.value.hash = makeUrlHash(url)
+            pack.value.hash = urlHash(url)
 
             cast(pack)
 
