@@ -25,7 +25,7 @@ frontend
   })
   .listen(config.frontend.port)
 
-// 
+// accepting socket connections and broadcast events
 socket
   .on('connection', function (client) {
     client.broadcast({ announcement: client.sessionId + ' connected' })
@@ -53,6 +53,7 @@ varnish
                , value: {}
                }
 
+    // XXX cleaner urls needed
     url = 'http:/' + url
 
     redis.exists(url, function(err, exist) {
