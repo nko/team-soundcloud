@@ -43,7 +43,7 @@ Alternalist.prototype.topk = function (k) {
 }
 
 Alternalist.prototype.paint = function (k) {
-  var lines = this.topk(1000);
+  var lines = this.topk(50);
 
   var link = function(url) {
     return "<a href=\"" + url + "\">" + url + "</a>";
