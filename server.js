@@ -100,6 +100,8 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
   redisClient.type(url, function(err, type) {
     if(err) throw err
 
+    if(type === undefined) console.dir(arguments)
+
     type = type.toString()
 
     switch(type) {
@@ -126,7 +128,11 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
         break;
       case 'string':
-        redisClient.get(url, function(err, url) {
+        redisClient.get(msg, function(err, url) {
+          if(err) throw err
+
+          if(typeof(url) === undefined) console.dir(arguments)
+
           pack.value.url = url.toString()
 
           cast(pack)
@@ -139,10 +145,16 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
   })
 });
 
+twitter.on('error', function(err) {
+  throw err
+})
+
 redisClient.auth(config.redis.password, function(err, authorized) {
   if(err) throw err
 
-  twitter.read();
+  redisClient.flushall(function() {
+    twitter.read();
+  })
 })
 
 setInterval(function() {
