@@ -17,7 +17,9 @@ task :test => :build do
     var v = require('./build/default/varnish');
     var i = new v.Varnish('/tmp');
     setInterval(function() {
-      i.loop();
+      i.loop(function(tag, s) {
+        console.log([tag, s]);
+      });
     }, 1000);
     ]
   end

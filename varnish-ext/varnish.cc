@@ -73,13 +73,10 @@ class Varnish: ObjectWrap
     HandleScope scope;
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
 
-
     if (args.Length() == 1 && args[0]->IsFunction()) {
-      //Function fun = args.at(0);
-      //Local<Function> fun = args[0];
+      Local<Function> callback = Local<Function>::Cast(args[0]);
+      v->vsl_dispatch(&callback);
     }
-
-    v->log_loop();
 
     return v8::Undefined();
   }
@@ -107,22 +104,28 @@ class Varnish: ObjectWrap
   handler(void *priv, enum shmlogtag tag, unsigned fd, unsigned len,
       unsigned spec, const char *ptr)
   {
-    FILE *fo = (FILE *) priv;
-    int type;
+    Local<Function> *cb = (Local<Function> *) priv;
+    char type;
 
-    assert(fo != NULL);
+    assert(cb != NULL);
 
     type = (spec & VSL_S_CLIENT) ? 'c' :
         (spec & VSL_S_BACKEND) ? 'b' : '-';
 
-    fprintf(fo, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
+    Local<Value> argv[2];
+    argv[0] = Local<Value>::New(String::New(VSL_tags[tag]));
+    argv[1] = Local<Value>::New(String::New(ptr));
+
+    (*cb)->Call(Context::GetCurrent()->Global(), 2, argv);
+
+    //fprintf(stderr, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
     return (0);
   }
 
   void
-  log_loop(void)
+  vsl_dispatch(Local<Function> *callback)
   {
-    while (VSL_Dispatch(vd, handler, stdout) >= 0) {
+    while (VSL_Dispatch(vd, handler, callback) >= 0) {
       if (fflush(stdout) != 0) {
         perror("stdout");
         break;
