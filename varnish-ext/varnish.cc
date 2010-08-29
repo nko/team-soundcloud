@@ -141,6 +141,13 @@ class Varnish: EventEmitter
 
     v->Emit(String::New("log"), 4, argv);
 
+    switch (tag) {
+      #define SLTM(name) case SLT_##name: v->Emit(String::New(#name), 4, argv); break;
+      #include <shmlog_tags.h>
+      #undef SLTM
+      default:
+        ;
+    }
     //fprintf(stderr, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
     return (0);
   }

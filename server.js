@@ -89,34 +89,36 @@ twitter.on('message', function (msg) {
 var requests = {};
 
 // generate varnish traffic
-twitter.on('message', function (msg) {
+varnish.on('RxURL', function (tag, fd, spec, url) {
+  url = 'http:/' + url;
+
   var cast = function(m) { socket.broadcast(JSON.stringify(m)) }
     , pack = { key:  'request'
              , value: {}
              }
 
-  redisClient.type(msg, function(err, type) {
+  redisClient.type(url, function(err, type) {
     if(err) throw err
 
     type = type.toString()
 
     switch(type) {
       case 'none':
-        redisClient.lpush(msg, '0', function(err, elems) {
+        redisClient.lpush(url, '0', function(err, elems) {
           if(err) throw err
         })
 
         break;
       case 'list':
-        bitly.expandMoar(msg, function(hdrs) {
+        bitly.expandMoar(url, function(hdrs) {
           var url = hdrs['location']
 
-          redisClient.set(msg, url, function(err, code) {
+          redisClient.set(url, url, function(err, code) {
             pack.value.url = url
 
             cast(pack)
 
-            redisClient.expire(msg, (60 * 5), function(err, code) {
+            redisClient.expire(url, (60 * 5), function(err, code) {
               if(err) throw err
             })
           })
@@ -124,7 +126,7 @@ twitter.on('message', function (msg) {
 
         break;
       case 'string':
-        redisClient.get(msg, function(err, url) {
+        redisClient.get(url, function(err, url) {
           pack.value.url = url.toString()
 
           cast(pack)
@@ -142,3 +144,7 @@ redisClient.auth(config.redis.password, function(err, authorized) {
 
   twitter.read();
 })
+
+setInterval(function() {
+  varnish.listen();
+}, 500);
