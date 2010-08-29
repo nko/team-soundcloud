@@ -86,7 +86,7 @@ class Varnish: EventEmitter
       v->vsl_dispatch(NULL);
     }
 
-    return v8::Undefined();
+    return Undefined();
   }
 
   static Handle<Value> Config(const Arguments& args)
@@ -105,7 +105,7 @@ class Varnish: EventEmitter
       return ThrowException(String::New("Invalid args"));
     }
 
-    return v8::Undefined();
+    return Undefined();
   }
 
   Varnish(const char *n_arg)
