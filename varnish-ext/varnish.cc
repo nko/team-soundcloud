@@ -70,7 +70,6 @@ class Varnish: ObjectWrap
 
   static Handle<Value> Loop(const Arguments& args)
   {
-    HandleScope scope;
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
 
     if (args.Length() == 1 && args[0]->IsFunction()) {
@@ -105,18 +104,15 @@ class Varnish: ObjectWrap
       unsigned spec, const char *ptr)
   {
     Local<Function> *cb = (Local<Function> *) priv;
-    char type;
-
     assert(cb != NULL);
 
-    type = (spec & VSL_S_CLIENT) ? 'c' :
-        (spec & VSL_S_BACKEND) ? 'b' : '-';
-
-    Local<Value> argv[2];
+    Local<Value> argv[4];
     argv[0] = Local<Value>::New(String::New(VSL_tags[tag]));
-    argv[1] = Local<Value>::New(String::New(ptr));
+    argv[2] = Local<Value>::New(Integer::New(fd));
+    argv[1] = Local<Value>::New(Integer::New(spec));
+    argv[3] = Local<Value>::New(String::New(ptr));
 
-    (*cb)->Call(Context::GetCurrent()->Global(), 2, argv);
+    (*cb)->Call(Context::GetCurrent()->Global(), 4, argv);
 
     //fprintf(stderr, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
     return (0);
@@ -125,12 +121,8 @@ class Varnish: ObjectWrap
   void
   vsl_dispatch(Local<Function> *callback)
   {
-    while (VSL_Dispatch(vd, handler, callback) >= 0) {
-      if (fflush(stdout) != 0) {
-        perror("stdout");
-        break;
-      }
-    }
+    while (VSL_Dispatch(vd, handler, callback) >= 0)
+      ;
   }
 };
 
