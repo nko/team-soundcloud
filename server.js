@@ -91,12 +91,12 @@ twitter.on('error', function(err) {
 
 // generate varnish traffic
 varnish.on('RxURL', function (tag, fd, spec, url) {
-  url = 'http:/' + url;
-
   var cast = function(m) { socket.broadcast(JSON.stringify(m)) }
     , pack = { key:  'request'
              , value: {}
              }
+
+  url = 'http:/' + url
 
   redisClient.type(url, function(err, type) {
     if(err) throw err
@@ -117,8 +117,9 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
           var url = hdrs['location']
 
           redisClient.set(url, url, function(err, code) {
-            pack.value.url = url
             if(err) throw err
+
+            pack.value.url = url
             cast(pack)
 
             redisClient.expire(url, (60 * 5), function(err, code) {
@@ -129,14 +130,13 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
         break;
       case 'string':
-        redisClient.get(msg, function(err, url) {
+        redisClient.get(url, function(err, url) {
           if(err) throw err
 
           if(typeof(url) === undefined) console.dir(arguments)
 
           pack.value.url = url.toString()
 
-          if(err) throw err
           cast(pack)
         })
 
