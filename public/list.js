@@ -14,19 +14,19 @@ TopList.prototype = {
       console.log(e);
     }
   },
-  
+
   repaint: function() {
     var index = 0;
     var node = this.head;
-      
+
     var link = function(url) {
       return "<a href=\"" + url + "\">" + url + "</a>";
     };
-    
+
     var row = function(value) {
       return "<tr class=\"row\"><td>" + value.count + "</td><td>" + link(value.url) + "</td></tr>";
     };
-    
+
     this.table.remove(".row");
 
     while((node.next != null) && (index <= this.listLimit)) {
@@ -39,7 +39,7 @@ TopList.prototype = {
   add: function(data) {
     var index = 0;
     var currentNode = null;
-      
+
     var node = {
         url: data.url,
         hash: data.hash,
@@ -52,9 +52,9 @@ TopList.prototype = {
       this.head = node;
       this.size += 1;
 
-    } else {      
+    } else {
       for (var currentNode = this.head; currentNode.next != null; currentNode = currentNode.next) {
-        
+
         if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
@@ -62,16 +62,16 @@ TopList.prototype = {
           if (currentNode.previous) {
             currentNode.previous.next = currentNode.next;
           }
-          
+
           if (currentNode.next) {
             currentNode.next.previous = currentNode.previous;
           }
-          
+
           // traverse back up
           while ( (currentNode.previous != null) && (currentNode.previous.count < currentNode.count) ) {
             currentNode = currentNode.previous;
           }
-          
+
           // insert node at new position
           node.next = currentNode.next;
           node.previous = currentNode;
@@ -87,9 +87,9 @@ TopList.prototype = {
 
       if(index < this.listLimit) { this.repaint(); }
       this.size += 1;
-      
+
       node.previous = currentNode;
-      currentNode.next = node;        
+      currentNode.next = node;
     }
   }
 };
