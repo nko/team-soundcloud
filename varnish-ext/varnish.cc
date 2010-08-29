@@ -32,7 +32,7 @@ class Varnish: ObjectWrap
     s_ct->SetClassName(String::NewSymbol("Varnish"));
 
     NODE_SET_PROTOTYPE_METHOD(s_ct, "stats", Stats);
-    NODE_SET_PROTOTYPE_METHOD(s_ct, "loop", Loop);
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "log", Log);
 
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
   }
@@ -68,7 +68,7 @@ class Varnish: ObjectWrap
     return scope.Close(obj);
   }
 
-  static Handle<Value> Loop(const Arguments& args)
+  static Handle<Value> Log(const Arguments& args)
   {
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
 
@@ -85,12 +85,10 @@ class Varnish: ObjectWrap
     vd = VSL_New();
     if (VSL_OpenLog(vd, n_arg)) {
       ThrowException(String::New("Error opening logs"));
-      //throw "Error opening logs"
     }
 
     if ((vsl_stats = VSL_OpenStats(n_arg)) == NULL) {
       ThrowException(String::New("Error opening stats"));
-      //throw "Error opening stats";
     }
     VSL_NonBlocking(vd, 1);
   }

@@ -14,10 +14,10 @@ end
 task :test => :build do
   File.open('test.js', 'w') do |f|
     f << %Q[
-    var v = require('./build/default/varnish');
-    var i = new v.Varnish('/tmp');
+    var varnish = require('./build/default/varnish');
+    var v = new varnish.Varnish('/tmp');
     setInterval(function() {
-      i.loop(function(tag, fd, spec, s) {
+      v.log(function(tag, fd, spec, s) {
         console.log([tag, fd, spec, s]);
       });
     }, 1000);
