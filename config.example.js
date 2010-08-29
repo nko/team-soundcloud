@@ -1,6 +1,6 @@
 var path = require('path')
 
-exports.root = path.dirname(__filename)
+exports.root = root = path.dirname(__filename)
 exports.frontend = { port: 8080 }
 
 // redis host, port, auth
@@ -17,7 +17,7 @@ exports.twitter = { host: 'stream.twitter.com'
 
 // host + url that can be used to generate traffic against varnish
 exports.varnish = { run: '/usr/local/sbin/varnishd'
-                  , config: path.dirname(__filename) + '/config/varnish.dev.conf'
+                  , config: path.join(root, '/config/varnish.dev.conf')
                   , host: '127.0.0.1'
                   , port: 9000
                   }
