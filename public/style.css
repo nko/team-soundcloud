@@ -137,8 +137,12 @@ table tbody tr td:first-child {
   width: 100px;
 }
 
+table tbody a {
+  text-decoration: none;
+}
+
 .path {
-  color: #aaa;
+  color: #d2cafe;
 }
 
 /* about */
