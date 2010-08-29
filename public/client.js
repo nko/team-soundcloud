@@ -104,17 +104,11 @@
 
   $.fn.requestTable = function() {
     var element = $(this);
-    var table = {};
-    var link = function(url) {
-      return "<a href=\"http://" + url + "\">" + url + "</a>"
-    }
-
-    var row = function(value) {
-      return "<tr><td>" + value.city + "</td><td>" + value.duration + "</td><td>" + value.status + "</td><td>" + link(value.url) + "</td></tr>";
-    }
+    var list = new TopList(element);
 
     $('body').bind("varnish-request", function(e, value) {
-      element.append(row(value));
+      list.add(value);
+      list.paint();
     });
 
     return this;

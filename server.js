@@ -68,6 +68,9 @@ twitter.on('message', function (msg) {
 });
 
 // broadcast a dummy event
+var requests = {};
+
+// generate varnish traffic
 twitter.on('message', function (msg) {
   socket.broadcast(
     JSON.stringify({ key:  'request'
