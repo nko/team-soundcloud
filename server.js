@@ -84,7 +84,9 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
 
         break;
       case 'list':
-        bitly.expandMoar(url, function(hdrs) {
+        bitly.expandMoar(url, function(ok, hdrs) {
+          if(!ok) return false
+
           var resolvedUrl = hdrs['location']
 
           redisClient.set(url, resolvedUrl, function(err, code) {
