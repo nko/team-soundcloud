@@ -1,5 +1,5 @@
 STAT_FIELDS = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess', 's_req',
-               's_pass', 's_fetch', 's_hdrbytes', 's_bodybytes', 'backend_req'
+               's_pass', 's_fetch', 'backend_req'
               ];
 
 var url             = require('url')
@@ -66,7 +66,7 @@ setInterval(function () {
     socket.broadcast(
       JSON.stringify({ key: STAT_FIELDS[i]
                      , value: { ag: currentStats[STAT_FIELDS[i]]
-                              , av: lastStats ? currentStats[STAT_FIELDS[i]] - lastStats[STAT_FIELDS[i]] : currentStats[STAT_FIELDS[i]]
+                              , av: (lastStats ? currentStats[STAT_FIELDS[i]] - lastStats[STAT_FIELDS[i]] : currentStats[STAT_FIELDS[i]]) * 10
                               }
                      })
     )
