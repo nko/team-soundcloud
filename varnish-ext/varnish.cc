@@ -135,8 +135,8 @@ class Varnish: EventEmitter
 
     Local<Value> argv[4];
     argv[0] = Local<Value>::New(String::New(VSL_tags[tag]));
-    argv[2] = Local<Value>::New(Integer::New(fd));
-    argv[1] = Local<Value>::New(Integer::New(spec));
+    argv[1] = Local<Value>::New(Integer::New(fd));
+    argv[2] = Local<Value>::New(Integer::New(spec));
     argv[3] = Local<Value>::New(String::New(ptr));
 
     v->Emit(String::New("log"), 4, argv);
