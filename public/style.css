@@ -137,6 +137,10 @@ table tbody tr td:first-child {
   width: 100px;
 }
 
+.path {
+  color: #aaa;
+}
+
 /* about */
 
 .about {
