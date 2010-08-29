@@ -5,6 +5,7 @@ STAT_FIELDS = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess',
 var url             = require('url')
   , http            = require('http')
   , spawn           = require('child_process').spawn
+  , crypto          = require('crypto')
   , io              = require('socket.io')
   , config          = require('./config')
   , redisClient     = require('redis-client').createClient(config.redis.port, config.redis.host)
@@ -18,13 +19,20 @@ var url             = require('url')
                                                            , config.twitter.endpoint
                                                            , config.twitter.auth
                                                            )
-  // start a varnish instance
   , child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
                                       , '-s malloc'
                                       , '-n/tmp'
                                       , '-F'
                                       ]);
+
+function urlHash(input) {
+  var hash = crypto.createHash('md5')
+
+  hash.update(input)
+
+  return hash.digest('base64')
+}
 
 child.stderr.on('data', function (data) {
   console.log('varnish child process: ' + data);
@@ -120,6 +128,8 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
             if(err) throw err
 
             pack.value.url = url
+            pack.value.hash = makeUrlHash(url)
+
             cast(pack)
 
             redisClient.expire(url, (60 * 5), function(err, code) {
@@ -136,13 +146,14 @@ varnish.on('RxURL', function (tag, fd, spec, url) {
           if(typeof(url) === undefined) console.dir(arguments)
 
           pack.value.url = url.toString()
+          pack.value.hash = urlHash(url.toString())
 
           cast(pack)
         })
 
         break;
       default:
-        console.log('default')
+        console.log('type is: ' + type)
     }
   })
 });
