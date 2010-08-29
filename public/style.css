@@ -85,6 +85,10 @@ section.statistics {
   clear: both;
 }
 
+.statistics .average {
+  color: #aaa;
+}
+
 /* sparklines */
 
 .spark {
@@ -107,4 +111,40 @@ table td {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+/* about */
+
+.about {
+  margin-left: 30px;
+  margin-top: 30px;
+}
+
+.tilde {
+  color: #1187ec;
+  width: 15px;
+}
+
+.splash {
+  margin-top: 300px;
+  display: block;
+  color: black;
+  text-align: center;
+}
+
+.splash h1 {
+  font-size: 25px;
+  margin-bottom: 25px;
+}
+
+.splash a {
+  text-decoration: none;
+}
+
+.splash em {
+  color: #ff0084;
+}
+
+.splash .ambient {
+  color: black;
 }
