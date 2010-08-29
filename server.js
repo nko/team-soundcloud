@@ -4,17 +4,16 @@ var url             = require('url')
   , io              = require('socket.io')
   , config          = require('./config')
   , redisClient     = require('redis-client').createClient(config.redis.port, config.redis.host)
-  , Varnish         = require('./varnish-ext/build/default/varnish').Varnish
+  , varnish         = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
   , frontend        = new http.Server()
   , frontendStatic  = new(require('node-static').Server)('./public')
   , socket          = io.listen(frontend)
   , twitter         = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
-                                                          );
-
-// start a varnish instance
-var child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
+                                                          )
+  // start a varnish instance
+  , child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
                                       , '-s malloc'
                                       , '-n/tmp'
@@ -25,7 +24,13 @@ child.stderr.on('data', function (data) {
   console.log('varnish child process: ' + data);
 });
 
-var varnish = new Varnish('/tmp');
+// always kill the child
+process.on('exit', function() {
+  child.kill()
+})
+process.on('uncaughtException', function() {
+  child.kill()
+})
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
