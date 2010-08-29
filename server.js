@@ -11,6 +11,7 @@ var http           = require('http')
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
                                                           );
+
 // start a varnish instance
 var child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
                                       , '-f' + config.varnish.config
@@ -18,6 +19,10 @@ var child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + confi
                                       , '-n/tmp'
                                       , '-F'
                                       ]);
+
+child.stderr.on('data', function (data) {
+  console.log('varnish child process: ' + data);
+});
 
 var varnish = new Varnish.Varnish('/tmp');
 
