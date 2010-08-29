@@ -1,5 +1,6 @@
 #include <v8.h>
 #include <node.h>
+#include <node_events.h>
 
 extern "C" {
   #include <errno.h>
@@ -14,7 +15,7 @@ extern "C" {
 using namespace node;
 using namespace v8;
 
-class Varnish: ObjectWrap
+class Varnish: EventEmitter
 {
   public:
   struct VSL_data *vd;
@@ -28,11 +29,12 @@ class Varnish: ObjectWrap
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
     s_ct = Persistent<FunctionTemplate>::New(t);
+    s_ct->Inherit(EventEmitter::constructor_template);
     s_ct->InstanceTemplate()->SetInternalFieldCount(1);
     s_ct->SetClassName(String::NewSymbol("Varnish"));
 
     NODE_SET_PROTOTYPE_METHOD(s_ct, "stats", Stats);
-    NODE_SET_PROTOTYPE_METHOD(s_ct, "log", Log);
+    NODE_SET_PROTOTYPE_METHOD(s_ct, "listen", Listen);
     NODE_SET_PROTOTYPE_METHOD(s_ct, "config", Config);
 
     target->Set(String::NewSymbol("Varnish"), s_ct->GetFunction());
@@ -73,13 +75,15 @@ class Varnish: ObjectWrap
     return scope.Close(obj);
   }
 
-  static Handle<Value> Log(const Arguments& args)
+  static Handle<Value> Listen(const Arguments& args)
   {
     Varnish* v = ObjectWrap::Unwrap<Varnish>(args.This());
 
     if (args.Length() == 1 && args[0]->IsFunction()) {
       Local<Function> callback = Local<Function>::Cast(args[0]);
       v->vsl_dispatch(&callback);
+    } else {
+      v->vsl_dispatch(NULL);
     }
 
     return v8::Undefined();
@@ -125,8 +129,9 @@ class Varnish: ObjectWrap
   handler(void *priv, enum shmlogtag tag, unsigned fd, unsigned len,
       unsigned spec, const char *ptr)
   {
-    Local<Function> *cb = (Local<Function> *) priv;
-    assert(cb != NULL);
+    Varnish *v = (Varnish *) priv;
+
+    assert(v != NULL);
 
     Local<Value> argv[4];
     argv[0] = Local<Value>::New(String::New(VSL_tags[tag]));
@@ -134,7 +139,7 @@ class Varnish: ObjectWrap
     argv[1] = Local<Value>::New(Integer::New(spec));
     argv[3] = Local<Value>::New(String::New(ptr));
 
-    (*cb)->Call(Context::GetCurrent()->Global(), 4, argv);
+    v->Emit(String::New("log"), 4, argv);
 
     //fprintf(stderr, "%5d %-12s %c %.*s\n", fd, VSL_tags[tag], type, len, ptr);
     return (0);
@@ -143,7 +148,7 @@ class Varnish: ObjectWrap
   void
   vsl_dispatch(Local<Function> *callback)
   {
-    while (VSL_Dispatch(vd, handler, callback) >= 0)
+    while (VSL_Dispatch(vd, handler, this) >= 0)
       ;
   }
 
