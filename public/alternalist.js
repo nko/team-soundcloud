@@ -1,3 +1,10 @@
+function prettyUrl(url) {
+  var clean = url.replace(/http:\/\/|https:\/\//, '').replace(/^www\./, '')
+    , split = clean.split(clean.search(/[\/|?|;]/));
+
+  return { host: split[0], path: (split[1] || '') };
+}
+
 function Alternalist(domElement) {
   this.domElement = domElement;
   this.buckets = {};
@@ -12,7 +19,8 @@ Alternalist.prototype.bucket = function(key) {
 }
 
 Alternalist.prototype.add = function (key, value) {
-  var bucket = this.bucket(key), index;
+  var key = key.lastIndexOf('/') === (key.length - 1) ? key.substr(0, key.length -1) : key
+    , bucket = this.bucket(key), index;
 
   if( this.buckets[bucket - 1] ) {
     index = this.buckets[bucket-1].indexOf(key);
@@ -46,11 +54,13 @@ Alternalist.prototype.paint = function (k) {
   var lines = this.topk(50);
 
   var link = function(url) {
-    return "<a href=\"" + url + "\">" + url + "</a>";
+    var pretty = prettyUrl(url);
+
+    return '<a href=\'' + url + '\'><span class="host">' + pretty.host + '</span><span class="path">' + pretty.path + '</span></a>';
   };
 
   var row = function(count, url) {
-    return "<tr class=\"row\"><td>" + count + "</td><td>" + link(url) + "</td></tr>";
+    return '<tr class=\'row\'><td>' + count + '</td><td>' + link(url) + '</td></tr>';
   };
 
   this.domElement.empty();

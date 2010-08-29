@@ -20,10 +20,15 @@ TopList.prototype = {
     var node = this.head;
 
     var link = function(url) {
-      return "<a href=\"" + url + "\">" + url + "</a>";
+      var prettyUrl = url.replace('http://', '');
+
+      console.log(prettyUrl)
+
+      return "<a href=\"" + url + "\">" + prettyUrl + "</a>";
     };
 
     var row = function(value) {
+      console.log('row')
       return "<tr class=\"row\"><td>" + value.count + "</td><td>" + link(value.url) + "</td></tr>";
     };
 

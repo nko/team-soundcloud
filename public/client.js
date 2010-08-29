@@ -16,7 +16,7 @@
     socket.connect();
     socket.on('message', function(data) {
       var message = JSON.parse(data);
-      $("body").trigger("varnish-" + message.key, message.value)
+      $('body').trigger('varnish-' + message.key, message.value)
     });
   }
 
@@ -28,7 +28,7 @@
 
   $.dashboardTime = function() {
     var now = new Date();
-    return now.getHours() + ":" + ("0" + now.getMinutes()).substr(-2) + ":" + ("0" + now.getSeconds()).substr(-2);
+    return ('0' + now.getHours()).substr(-2) + ':' + ('0' + now.getMinutes()).substr(-2) + ':' + ('0' + now.getSeconds()).substr(-2);
   }
 
   $.fn.timeize = function(selector) {
@@ -67,21 +67,21 @@
 
     function chart(data) {
       var img = new Image();
-      img.src = "http://chart.apis.google.com/chart?chs=60x20&cht=ls&chco=ff0084&chm=B,ffd3ea,0,0,0&chls=1,0,0&chd=" + simpleEncode(data, 500);
-      img.className = "spark";
+      img.src = 'http://chart.apis.google.com/chart?chs=60x20&cht=ls&chco=ff0084&chm=B,ffd3ea,0,0,0&chls=1,0,0&chd=' + simpleEncode(data, 500);
+      img.className = 'spark';
 
       return img;
     }
 
     this.each(function() {
       var element = $(this);
-      var graph = element.find(".graph");
-      var average = element.find(".average");
-      var aggregate = element.find(".aggregate");
+      var graph = element.find('.graph');
+      var average = element.find('.average');
+      var aggregate = element.find('.aggregate');
 
       element.dataList = new Array();
 
-      $("body").bind(element.attr('data-listen'), function(e, value) {
+      $('body').bind(element.attr('data-listen'), function(e, value) {
 
         // start sliding after n events
         element.dataList.push(value.av);
@@ -90,7 +90,7 @@
         aggregate.html(value.ag);
         average.html(value.av);
 
-        $(chart(element.dataList)).bind("load", function() {
+        $(chart(element.dataList)).bind('load', function() {
           graph.html(this);
         })
       });
@@ -113,7 +113,7 @@
 
     setInterval(function() { if(dirty) { alist.paint(); dirty = false } }, 1000);
 
-    $('body').bind("varnish-request", function(e, value) {
+    $('body').bind('varnish-request', function(e, value) {
       dirty = true
       alist.add(value.url);
     });
