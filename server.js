@@ -12,6 +12,7 @@ var url             = require('url')
   , frontend        = new http.Server()
   , frontendStatic  = new(require('node-static').Server)('./public')
   , socket          = io.listen(frontend)
+  , bitly           = new(require('./lib/bitly').Bitly)()
   , twitter         = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                            , config.twitter.endpoint
                                                            , config.twitter.auth
@@ -104,17 +105,17 @@ twitter.on('message', function (msg) {
 
         break;
       case 'list':
-        url = 'http://google.com'
-        // bit.ly expand here
-        redisClient.set(msg, url, function(err, code) {
-          pack.value.url = url
+        bitly.expandMoar(msg, function(hdrs) {
+          var url = hdrs['location']
 
-          cast(pack)
+          redisClient.set(msg, url, function(err, code) {
+            pack.value.url = url
 
-          redisClient.expire(msg, (60 * 5), function(err, code) {
-            if(err) throw err
+            cast(pack)
 
-            console.log(code)
+            redisClient.expire(msg, (60 * 5), function(err, code) {
+              if(err) throw err
+            })
           })
         })
 
