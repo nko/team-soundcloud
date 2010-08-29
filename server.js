@@ -51,8 +51,8 @@ twitter.on('message', function (msg) {
   var varnishClient = http.createClient(config.varnish.port, config.varnish.host)
     , request = varnishClient.request('GET', '/' + msg, { host: config.varnish.host })
 
-  varnishClient.on('error', function (err) {});
-  request.on('error', function (err) {});
+  varnishClient.on('error', function (err) { console.log(err.stack) });
+  request.on('error', function (err) { console.log(err.stack) });
   request.end();
 });
 
