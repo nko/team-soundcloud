@@ -91,6 +91,10 @@ section.dashboard {
   font-size: 45px;
 }
 
+.dashboard .help {
+  cursor: pointer;
+}
+
 section.statistics {
   clear: both;
 }
@@ -141,12 +145,14 @@ table tbody tr td:first-child {
 }
 
 .tilde {
+  clear: left;
+  float: left;
   color: #1187ec;
   width: 15px;
 }
 
 .splash {
-  display: block;
+  padding-top: 200px;
   color: black;
   text-align: center;
 }
