@@ -28,9 +28,11 @@ child.stderr.on('data', function (data) {
 process.on('exit', function() {
   child.kill()
 })
-
-process.on('uncaughtException', function() {
+process.on('uncaughtException', function(err) {
   child.kill()
+
+  console.log(err.stack)
+  process.exit()
 })
 
 // handle static file requests + websocket clients
@@ -78,16 +80,51 @@ var requests = {};
 
 // generate varnish traffic
 twitter.on('message', function (msg) {
-  socket.broadcast(
-    JSON.stringify({ key:  'request'
-                   , value: { url: msg
-                            , status: 200
-                            , ip: '127.0.0.1'
-                            , city: 'Berlin'
-                            , duration: 100
-                            }
-                   })
-  );
+  var cast = function(m) { socket.broadcast(JSON.stringify(m)) }
+    , pack = { key:  'request'
+             , value: {}
+             }
+
+  redisClient.type(msg, function(err, type) {
+    if(err) throw err
+
+    type = type.toString()
+
+    switch(type) {
+      case 'none':
+        redisClient.lpush(msg, '0', function(err, elems) {
+          if(err) throw err
+        })
+
+        break;
+      case 'list':
+        url = 'http://google.com'
+        // bit.ly expand here
+        redisClient.set(msg, url, function(err, code) {
+          pack.value.url = url
+
+          cast(pack)
+
+          redisClient.expire(msg, (60 * 5), function(err, code) {
+            if(err) throw err
+
+            console.log(code)
+          })
+        })
+
+        break;
+      case 'string':
+        redisClient.get(msg, function(err, url) {
+          pack.value.url = url.toString()
+
+          cast(pack)
+        })
+
+        break;
+      default:
+        console.log('default')
+    }
+  })
 });
 
 redisClient.auth(config.redis.password, function(err, authorized) {
