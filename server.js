@@ -1,12 +1,12 @@
-var http           = require('http')
+var url            = require('url')
+  , http           = require('http')
   , spawn          = require('child_process').spawn
-  , config         = require('./config')
   , io             = require('socket.io')
+  , config         = require('./config')
+  , Varnish        = require('./varnish-ext/build/default/varnish').Varnish
   , frontend       = new http.Server()
   , frontendStatic = new(require('node-static').Server)('./public')
   , socket         = io.listen(frontend)
-  , url            = require('url')
-  , Varnish        = require('./varnish-ext/build/default/varnish')
   , twitter        = new(require('./lib/twitter').Twitter)( config.twitter.host
                                                           , config.twitter.endpoint
                                                           , config.twitter.auth
@@ -24,7 +24,7 @@ child.stderr.on('data', function (data) {
   console.log('varnish child process: ' + data);
 });
 
-var varnish = new Varnish.Varnish('/tmp');
+var varnish = new Varnish('/tmp');
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
@@ -53,10 +53,10 @@ setInterval(function () {
 
 // generate varnish requests from bit.ly urls
 twitter.on('message', function (msg) {
-  var varnish = http.createClient(config.varnish.port, config.varnish.host)
-    , request = varnish.request('GET', '/' + msg, { host: config.varnish.host })
+  var varnishClient = http.createClient(config.varnish.port, config.varnish.host)
+    , request = varnishClient.request('GET', '/' + msg, { host: config.varnish.host })
 
-  varnish.on('error', function (err) {});
+  varnishClient.on('error', function (err) {});
   request.on('error', function (err) {});
   request.end();
 });
