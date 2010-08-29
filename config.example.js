@@ -20,4 +20,14 @@ exports.varnish = { run: '/usr/local/sbin/varnishd'
                   , config: path.join(root, '/config/varnish.dev.conf')
                   , host: '127.0.0.1'
                   , port: 9000
+                  , statFields: [ 'client_conn'
+                                , 'client_req'
+                                , 'cache_hit'
+                                , 'cache_miss'
+                                , 's_sess'
+                                , 's_req'
+                                , 's_pass'
+                                , 's_fetch'
+                                , 'backend_req'
+                                ]
                   }

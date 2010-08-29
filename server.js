@@ -1,62 +1,25 @@
-STAT_FIELDS = ['client_conn', 'client_req', 'cache_hit', 'cache_miss', 's_sess', 's_req',
-               's_pass', 's_fetch', 'backend_req'
-              ];
+var url         = require('url')
+  , http        = require('http')
+  , spawn       = require('child_process').spawn
+  , crypto      = require('crypto')
+  , io          = require('socket.io')
+  , config      = require('./config')
+  , lastStats   = null
+  , statFields  = config.varnish.statFields
+  , redisClient = require('redis-client').createClient(config.redis.port, config.redis.host)
+  , varnish     = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
+  , frontend    = new http.Server()
+  , staticSrv   = new(require('node-static').Server)('./public')
+  , socket      = io.listen(frontend)
+  , bitly       = new(require('./lib/bitly').Bitly)()
+  , twitter     = new(require('./lib/twitter').Twitter)(config.twitter.host, config.twitter.endpoint, config.twitter.auth)
+  , urlHash     = function(x) { return crypto.createHash('md5').update(x).digest('base64') }
 
-var url             = require('url')
-  , http            = require('http')
-  , spawn           = require('child_process').spawn
-  , crypto          = require('crypto')
-  , io              = require('socket.io')
-  , config          = require('./config')
-  , redisClient     = require('redis-client').createClient(config.redis.port, config.redis.host)
-  , lastStats       = null
-  , varnish         = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
-  , frontend        = new http.Server()
-  , frontendStatic  = new(require('node-static').Server)('./public')
-  , socket          = io.listen(frontend)
-  , bitly           = new(require('./lib/bitly').Bitly)()
-  , twitter         = new(require('./lib/twitter').Twitter)( config.twitter.host
-                                                           , config.twitter.endpoint
-                                                           , config.twitter.auth
-                                                           )
-  , child = spawn(config.varnish.run, [ '-a' + config.varnish.host + ':' + config.varnish.port
-                                      , '-f' + config.varnish.config
-                                      , '-s malloc'
-                                      , '-n/tmp'
-                                      , '-F'
-                                      ]);
-
-function urlHash(input) {
-  var hash = crypto.createHash('md5')
-
-  hash.update(input)
-
-  return hash.digest('base64')
-}
-
-child.stderr.on('data', function (data) {
-  console.log('varnish child process: ' + data);
-});
-
-// always kill the child
-process.on('exit', function() {
-  child.kill()
-})
-process.on('uncaughtException', function(err) {
-  child.kill()
-
-  if(typeof(err) === 'string')
-    console.log(err)
-  else
-    console.log(err.message), console.log(err.stack)
-
-  process.exit()
-})
 
 // handle static file requests + websocket clients
 frontend.on('request', function (req, res) {
   req.on('end', function () {
-    frontendStatic.serve(req, res)
+    staticSrv.serve(req, res)
   });
 });
 
@@ -70,11 +33,11 @@ frontend.listen(config.frontend.port);
 setInterval(function () {
   var currentStats = varnish.stats()
 
-  for (var i=0; i<STAT_FIELDS.length; i++) {
+  for (var i=0; i< statFields.length; i++) {
     socket.broadcast(
-      JSON.stringify({ key: STAT_FIELDS[i]
-                     , value: { ag: currentStats[STAT_FIELDS[i]]
-                              , av: (lastStats ? currentStats[STAT_FIELDS[i]] - lastStats[STAT_FIELDS[i]] : currentStats[STAT_FIELDS[i]]) * 10
+      JSON.stringify({ key: statFields[i]
+                     , value: { ag: currentStats[statFields[i]]
+                              , av: (lastStats ? currentStats[statFields[i]] - lastStats[statFields[i]] : currentStats[statFields[i]]) * 10
                               }
                      })
     )
@@ -88,8 +51,8 @@ twitter.on('message', function (msg) {
   var varnishClient = http.createClient(config.varnish.port, config.varnish.host)
     , request = varnishClient.request('GET', '/' + msg, { host: config.varnish.host })
 
-  varnishClient.on('error', function (err) {});
-  request.on('error', function (err) {});
+  varnishClient.on('error', function (err) { console.log(err.stack) });
+  request.on('error', function (err) { console.log(err.stack) });
   request.end();
 });
 
