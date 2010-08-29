@@ -107,10 +107,11 @@
 
   $.fn.requestTable = function() {
     var element = $(this);
-    // var list = new TopList(element);
+    var list = new TopList(element);
 
     $('body').bind("varnish-request", function(e, value) {
-      // list.add(value);
+      console.log(value.url)
+      list.add(value);
     });
 
     return this;

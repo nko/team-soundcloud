@@ -93,6 +93,13 @@ section.statistics {
 
 /* data */
 
+.data {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 table {
   margin-top: 20px;
 }

@@ -13,7 +13,7 @@ TopList.prototype = {
       , node = this.head;
       
       var link = function(url) {
-      return "<a href=\"http://" + url + "\">http://" + url + "</a>"
+      return "<a href=\"" + url + "\">http://" + url + "</a>"
     }
 
     var row = function(value) {
@@ -36,7 +36,7 @@ TopList.prototype = {
         url: data.url,
         hash: data.url,
         count: 1,
-        next: null
+        next: null,
         previous: null
     };
 
@@ -47,7 +47,6 @@ TopList.prototype = {
       currentNode = this.head;
 
       while (currentNode.next) {
-        
         if (currentNode.hash == node.hash) {
           currentNode.count += 1;
 
@@ -71,7 +70,8 @@ TopList.prototype = {
         currentNode = currentNode.next;
       }
 
-      if(this.listLimit === index) { this.paint() }      
+      if(this.listLimit === index) { this.paint(); }
+
       node.previous = currentNode;
       currentNode.next = node;
     }
