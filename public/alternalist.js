@@ -1,8 +1,9 @@
 function prettyUrl(url) {
   var clean = url.replace(/http:\/\/|https:\/\//, '').replace(/^www\./, '')
-    , split = clean.split(clean.search(/[\/|?|;]/));
+    , host = clean.split(/[\/|?|;]/, 1).pop()
+    , path = clean.substr(host.length, clean.length);
 
-  return { host: split[0], path: (split[1] || '') };
+  return { host: host, path: path };
 }
 
 function Alternalist(domElement) {
