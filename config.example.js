@@ -10,9 +10,10 @@ exports.redis = { host: 'foo.bar.baz'
                 }
 
 // twitter api details + auth credentials
-exports.twitter = { host: 'stream.twitter.com'
-                  , endpoint: '/1/statuses/filter.json?track=bit'
-                  , auth: 'foo' // Base64.encode64(username:password)
+exports.twitter = { username: 'foo'
+                  , password: 'bar'
+                  , format: 'json'
+                  , params: { track: 'foo,bar' }
                   }
 
 // host + url that can be used to generate traffic against varnish

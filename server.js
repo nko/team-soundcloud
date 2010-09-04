@@ -1,19 +1,17 @@
 var url         = require('url')
   , http        = require('http')
-  , spawn       = require('child_process').spawn
   , crypto      = require('crypto')
   , io          = require('socket.io')
   , redisClient = require('redis-client').createClient
   , config      = require('./config')
-  , statFields  = config.varnish.statFields
-  , lastStats   = null
   , varnish     = new(require('./varnish-ext/build/default/varnish').Varnish)('/tmp')
   , frontend    = new(require('http').Server)()
   , staticSrv   = new(require('node-static').Server)('./public')
-  , bitly       = new(require('./lib/bitly').Bitly)()
-  , twitter     = require('./lib/twitter').createStream()
-  , varnishCli  = http.createClient(config.varnish.port, config.varnish.host) 
+  , twitter     = require('./lib/twitter').createStream(config.twitter)
+  , varnishCli  = http.createClient(config.varnish.port, config.varnish.host)
   , socket      = io.listen(frontend)
+  , statFields  = config.varnish.statFields
+  , lastStats   = null
   , urlHash     = function(x) { return crypto.createHash('md5').update(x).digest('hex') }
 
 // handle static file requests
@@ -57,9 +55,6 @@ varnish
 
     socket.broadcast(JSON.stringify(pack))
   })
-
-// start twitter streaming
-// twitter.read()
 
 // generate stat events and broadcast to all clients
 setInterval(function () {
