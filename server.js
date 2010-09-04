@@ -11,9 +11,9 @@ var url         = require('url')
   , frontend    = new(require('http').Server)()
   , staticSrv   = new(require('node-static').Server)('./public')
   , bitly       = new(require('./lib/bitly').Bitly)()
-  , twitter     = new(require('./lib/twitter').Twitter)(config.twitter.host, config.twitter.endpoint, config.twitter.auth)
+  , twitter     = require('./lib/twitter').createStream()
+  , varnishCli  = http.createClient(config.varnish.port, config.varnish.host) 
   , socket      = io.listen(frontend)
-  , redis       = redisClient(config.redis.port, config.redis.host)
   , urlHash     = function(x) { return crypto.createHash('md5').update(x).digest('hex') }
 
 // handle static file requests
@@ -33,13 +33,14 @@ socket
 
 // generate varnish requests from bit.ly urls
 twitter
-  .on('message', function (msg) {
-    var varnishClient = http.createClient(config.varnish.port, config.varnish.host)
-      , request = varnishClient.request('GET', '/' + msg, { host: config.varnish.host })
+  .on('urls', function (urls) {
+    urls.forEach(function(url) {
+      var  request = varnishCli.request('GET', '/' + url, { host: config.varnish.host })
 
-    varnishClient.on('error', function (err) { console.log(err.stack) })
-    request.on('error', function (err) { console.log(err.stack) })
-    request.end()
+      varnishCli.on('error', function (err) { console.log(err.stack) })
+      request.on('error', function (err) { console.log(err.stack) })
+      request.end()
+    })
   })
   .on('error', function(err) {
     throw err
@@ -48,51 +49,17 @@ twitter
 // generate varnish traffic
 varnish
   .on('RxURL', function (tag, fd, spec, url) {
-    var cast = function(m) { socket.broadcast(JSON.stringify(m)) }
-      , pack = { key:  'request'
-               , value: {}
+    var pack = { key:  'request'
+               , value: { url: ('http:/' + url)
+                        , hash: urlHash(url.toString())
+                        }
                }
 
-    // XXX cleaner urls needed
-    url = 'http:/' + url
-
-    redis.exists(url, function(err, exist) {
-      if(err) throw err
-
-      if(exist) {
-        redis.get(url, function(err, resolvedUrl) {
-          if(err) throw err
-
-          pack.value.url = resolvedUrl.toString()
-          pack.value.hash = urlHash(resolvedUrl.toString())
-
-          cast(pack)
-        })
-      } else {
-        bitly.expandMoar(url, function(ok, hdrs) {
-          if(!ok) return false
-
-          var resolvedUrl = hdrs['location']
-
-          redis.set(url, resolvedUrl, function(err, code) {
-            if(err) throw err
-
-            pack.value.url = resolvedUrl
-            pack.value.hash = urlHash(resolvedUrl)
-
-            cast(pack)
-
-            redis.expire(url, (60 * 5), function(err, code) {
-              if(err) throw err
-            })
-          })
-        })
-      }
-    })
+    socket.broadcast(JSON.stringify(pack))
   })
 
 // start twitter streaming
-twitter.read()
+// twitter.read()
 
 // generate stat events and broadcast to all clients
 setInterval(function () {
